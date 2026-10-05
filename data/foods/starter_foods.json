@@ -1,0 +1,834 @@
+[
+  {
+    "name": "Rolled Oats",
+    "brand": "Quaker",
+    "barcode": "030000010300",
+    "is_system": true,
+    "created_by": null,
+    "provenance": {
+      "source_type": "system",
+      "source_name": "starter_pack",
+      "external_id": null,
+      "attribution": "Public Domain / Standard Nutritional Reference",
+      "license": "Public Domain"
+    },
+    "serving_sizes": [
+      {
+        "serving_id": "srv_oats_cup",
+        "description": "1 cup dry",
+        "weight_g": 81.0,
+        "is_default": true
+      },
+      {
+        "serving_id": "srv_oats_halfcup",
+        "description": "1/2 cup dry",
+        "weight_g": 40.5,
+        "is_default": false
+      },
+      {
+        "serving_id": "srv_oats_100g",
+        "description": "100g",
+        "weight_g": 100.0,
+        "is_default": false
+      }
+    ],
+    "nutrients_per_100g": {
+      "calories": 379.0,
+      "protein_g": 13.2,
+      "carbs_g": 67.7,
+      "fat_g": 6.5,
+      "fiber_g": 10.1,
+      "sugar_g": 1.0,
+      "sodium_mg": 6.0
+    },
+    "tags": ["breakfast", "grain", "oats", "cereal"]
+  },
+  {
+    "name": "Chicken Breast (Boneless, Skinless)",
+    "brand": null,
+    "barcode": null,
+    "is_system": true,
+    "created_by": null,
+    "provenance": {
+      "source_type": "system",
+      "source_name": "starter_pack",
+      "external_id": null,
+      "attribution": "Public Domain / Standard Nutritional Reference",
+      "license": "Public Domain"
+    },
+    "serving_sizes": [
+      {
+        "serving_id": "srv_chk_breast",
+        "description": "1 breast (raw)",
+        "weight_g": 174.0,
+        "is_default": true
+      },
+      {
+        "serving_id": "srv_chk_100g",
+        "description": "100g",
+        "weight_g": 100.0,
+        "is_default": false
+      },
+      {
+        "serving_id": "srv_chk_oz",
+        "description": "1 oz",
+        "weight_g": 28.35,
+        "is_default": false
+      }
+    ],
+    "nutrients_per_100g": {
+      "calories": 120.0,
+      "protein_g": 22.5,
+      "carbs_g": 0.0,
+      "fat_g": 2.6,
+      "fiber_g": 0.0,
+      "sugar_g": 0.0,
+      "sodium_mg": 65.0
+    },
+    "tags": ["protein", "poultry", "meat", "chicken"]
+  },
+  {
+    "name": "Large Egg",
+    "brand": null,
+    "barcode": null,
+    "is_system": true,
+    "created_by": null,
+    "provenance": {
+      "source_type": "system",
+      "source_name": "starter_pack",
+      "external_id": null,
+      "attribution": "Public Domain / Standard Nutritional Reference",
+      "license": "Public Domain"
+    },
+    "serving_sizes": [
+      {
+        "serving_id": "srv_egg_large",
+        "description": "1 large egg",
+        "weight_g": 50.0,
+        "is_default": true
+      },
+      {
+        "serving_id": "srv_egg_med",
+        "description": "1 medium egg",
+        "weight_g": 44.0,
+        "is_default": false
+      },
+      {
+        "serving_id": "srv_egg_100g",
+        "description": "100g",
+        "weight_g": 100.0,
+        "is_default": false
+      }
+    ],
+    "nutrients_per_100g": {
+      "calories": 143.0,
+      "protein_g": 12.6,
+      "carbs_g": 0.7,
+      "fat_g": 9.5,
+      "fiber_g": 0.0,
+      "sugar_g": 0.4,
+      "sodium_mg": 142.0
+    },
+    "tags": ["protein", "egg", "breakfast", "dairy"]
+  },
+  {
+    "name": "Egg Whites",
+    "brand": null,
+    "barcode": null,
+    "is_system": true,
+    "created_by": null,
+    "provenance": {
+      "source_type": "system",
+      "source_name": "starter_pack",
+      "external_id": null,
+      "attribution": "Public Domain / Standard Nutritional Reference",
+      "license": "Public Domain"
+    },
+    "serving_sizes": [
+      {
+        "serving_id": "srv_eggwhite_1large",
+        "description": "1 large egg white",
+        "weight_g": 33.0,
+        "is_default": true
+      },
+      {
+        "serving_id": "srv_eggwhite_cup",
+        "description": "1 cup liquid",
+        "weight_g": 243.0,
+        "is_default": false
+      },
+      {
+        "serving_id": "srv_eggwhite_100g",
+        "description": "100g",
+        "weight_g": 100.0,
+        "is_default": false
+      }
+    ],
+    "nutrients_per_100g": {
+      "calories": 52.0,
+      "protein_g": 10.9,
+      "carbs_g": 0.7,
+      "fat_g": 0.2,
+      "fiber_g": 0.0,
+      "sugar_g": 0.7,
+      "sodium_mg": 166.0
+    },
+    "tags": ["protein", "egg", "lean", "breakfast"]
+  },
+  {
+    "name": "White Rice (Cooked)",
+    "brand": null,
+    "barcode": null,
+    "is_system": true,
+    "created_by": null,
+    "provenance": {
+      "source_type": "system",
+      "source_name": "starter_pack",
+      "external_id": null,
+      "attribution": "Public Domain / Standard Nutritional Reference",
+      "license": "Public Domain"
+    },
+    "serving_sizes": [
+      {
+        "serving_id": "srv_rice_white_cup",
+        "description": "1 cup cooked",
+        "weight_g": 158.0,
+        "is_default": true
+      },
+      {
+        "serving_id": "srv_rice_white_100g",
+        "description": "100g",
+        "weight_g": 100.0,
+        "is_default": false
+      }
+    ],
+    "nutrients_per_100g": {
+      "calories": 130.0,
+      "protein_g": 2.7,
+      "carbs_g": 28.2,
+      "fat_g": 0.3,
+      "fiber_g": 0.4,
+      "sugar_g": 0.1,
+      "sodium_mg": 1.0
+    },
+    "tags": ["grain", "rice", "side", "carbs"]
+  },
+  {
+    "name": "Brown Rice (Cooked)",
+    "brand": null,
+    "barcode": null,
+    "is_system": true,
+    "created_by": null,
+    "provenance": {
+      "source_type": "system",
+      "source_name": "starter_pack",
+      "external_id": null,
+      "attribution": "Public Domain / Standard Nutritional Reference",
+      "license": "Public Domain"
+    },
+    "serving_sizes": [
+      {
+        "serving_id": "srv_rice_brown_cup",
+        "description": "1 cup cooked",
+        "weight_g": 195.0,
+        "is_default": true
+      },
+      {
+        "serving_id": "srv_rice_brown_100g",
+        "description": "100g",
+        "weight_g": 100.0,
+        "is_default": false
+      }
+    ],
+    "nutrients_per_100g": {
+      "calories": 123.0,
+      "protein_g": 2.7,
+      "carbs_g": 25.6,
+      "fat_g": 1.0,
+      "fiber_g": 1.6,
+      "sugar_g": 0.2,
+      "sodium_mg": 4.0
+    },
+    "tags": ["grain", "rice", "whole grain", "carbs"]
+  },
+  {
+    "name": "Atlantic Salmon (Cooked)",
+    "brand": null,
+    "barcode": null,
+    "is_system": true,
+    "created_by": null,
+    "provenance": {
+      "source_type": "system",
+      "source_name": "starter_pack",
+      "external_id": null,
+      "attribution": "Public Domain / Standard Nutritional Reference",
+      "license": "Public Domain"
+    },
+    "serving_sizes": [
+      {
+        "serving_id": "srv_salmon_fillet",
+        "description": "1 fillet",
+        "weight_g": 178.0,
+        "is_default": true
+      },
+      {
+        "serving_id": "srv_salmon_3oz",
+        "description": "3 oz",
+        "weight_g": 85.0,
+        "is_default": false
+      },
+      {
+        "serving_id": "srv_salmon_100g",
+        "description": "100g",
+        "weight_g": 100.0,
+        "is_default": false
+      }
+    ],
+    "nutrients_per_100g": {
+      "calories": 206.0,
+      "protein_g": 22.1,
+      "carbs_g": 0.0,
+      "fat_g": 12.3,
+      "fiber_g": 0.0,
+      "sugar_g": 0.0,
+      "sodium_mg": 61.0
+    },
+    "tags": ["protein", "fish", "seafood", "omega-3"]
+  },
+  {
+    "name": "Banana",
+    "brand": null,
+    "barcode": null,
+    "is_system": true,
+    "created_by": null,
+    "provenance": {
+      "source_type": "system",
+      "source_name": "starter_pack",
+      "external_id": null,
+      "attribution": "Public Domain / Standard Nutritional Reference",
+      "license": "Public Domain"
+    },
+    "serving_sizes": [
+      {
+        "serving_id": "srv_banana_med",
+        "description": "1 medium (118g)",
+        "weight_g": 118.0,
+        "is_default": true
+      },
+      {
+        "serving_id": "srv_banana_large",
+        "description": "1 large (136g)",
+        "weight_g": 136.0,
+        "is_default": false
+      },
+      {
+        "serving_id": "srv_banana_100g",
+        "description": "100g",
+        "weight_g": 100.0,
+        "is_default": false
+      }
+    ],
+    "nutrients_per_100g": {
+      "calories": 89.0,
+      "protein_g": 1.1,
+      "carbs_g": 22.8,
+      "fat_g": 0.3,
+      "fiber_g": 2.6,
+      "sugar_g": 12.2,
+      "sodium_mg": 1.0
+    },
+    "tags": ["fruit", "snack", "banana", "produce"]
+  },
+  {
+    "name": "Apple (with skin)",
+    "brand": null,
+    "barcode": null,
+    "is_system": true,
+    "created_by": null,
+    "provenance": {
+      "source_type": "system",
+      "source_name": "starter_pack",
+      "external_id": null,
+      "attribution": "Public Domain / Standard Nutritional Reference",
+      "license": "Public Domain"
+    },
+    "serving_sizes": [
+      {
+        "serving_id": "srv_apple_med",
+        "description": "1 medium (182g)",
+        "weight_g": 182.0,
+        "is_default": true
+      },
+      {
+        "serving_id": "srv_apple_small",
+        "description": "1 small (149g)",
+        "weight_g": 149.0,
+        "is_default": false
+      },
+      {
+        "serving_id": "srv_apple_100g",
+        "description": "100g",
+        "weight_g": 100.0,
+        "is_default": false
+      }
+    ],
+    "nutrients_per_100g": {
+      "calories": 52.0,
+      "protein_g": 0.3,
+      "carbs_g": 13.8,
+      "fat_g": 0.2,
+      "fiber_g": 2.4,
+      "sugar_g": 10.4,
+      "sodium_mg": 1.0
+    },
+    "tags": ["fruit", "snack", "apple", "produce"]
+  },
+  {
+    "name": "Broccoli (Raw)",
+    "brand": null,
+    "barcode": null,
+    "is_system": true,
+    "created_by": null,
+    "provenance": {
+      "source_type": "system",
+      "source_name": "starter_pack",
+      "external_id": null,
+      "attribution": "Public Domain / Standard Nutritional Reference",
+      "license": "Public Domain"
+    },
+    "serving_sizes": [
+      {
+        "serving_id": "srv_broccoli_cup",
+        "description": "1 cup chopped (91g)",
+        "weight_g": 91.0,
+        "is_default": true
+      },
+      {
+        "serving_id": "srv_broccoli_stalk",
+        "description": "1 stalk (151g)",
+        "weight_g": 151.0,
+        "is_default": false
+      },
+      {
+        "serving_id": "srv_broccoli_100g",
+        "description": "100g",
+        "weight_g": 100.0,
+        "is_default": false
+      }
+    ],
+    "nutrients_per_100g": {
+      "calories": 34.0,
+      "protein_g": 2.8,
+      "carbs_g": 6.6,
+      "fat_g": 0.4,
+      "fiber_g": 2.6,
+      "sugar_g": 1.7,
+      "sodium_mg": 33.0
+    },
+    "tags": ["vegetable", "greens", "produce", "broccoli"]
+  },
+  {
+    "name": "Baby Spinach (Raw)",
+    "brand": null,
+    "barcode": null,
+    "is_system": true,
+    "created_by": null,
+    "provenance": {
+      "source_type": "system",
+      "source_name": "starter_pack",
+      "external_id": null,
+      "attribution": "Public Domain / Standard Nutritional Reference",
+      "license": "Public Domain"
+    },
+    "serving_sizes": [
+      {
+        "serving_id": "srv_spinach_2cups",
+        "description": "2 cups (60g)",
+        "weight_g": 60.0,
+        "is_default": true
+      },
+      {
+        "serving_id": "srv_spinach_100g",
+        "description": "100g",
+        "weight_g": 100.0,
+        "is_default": false
+      }
+    ],
+    "nutrients_per_100g": {
+      "calories": 23.0,
+      "protein_g": 2.9,
+      "carbs_g": 3.6,
+      "fat_g": 0.4,
+      "fiber_g": 2.2,
+      "sugar_g": 0.4,
+      "sodium_mg": 79.0
+    },
+    "tags": ["vegetable", "greens", "salad", "spinach"]
+  },
+  {
+    "name": "Whole Milk (3.25% Milkfat)",
+    "brand": null,
+    "barcode": null,
+    "is_system": true,
+    "created_by": null,
+    "provenance": {
+      "source_type": "system",
+      "source_name": "starter_pack",
+      "external_id": null,
+      "attribution": "Public Domain / Standard Nutritional Reference",
+      "license": "Public Domain"
+    },
+    "serving_sizes": [
+      {
+        "serving_id": "srv_milk_cup",
+        "description": "1 cup (8 fl oz)",
+        "weight_g": 244.0,
+        "is_default": true
+      },
+      {
+        "serving_id": "srv_milk_100g",
+        "description": "100g",
+        "weight_g": 100.0,
+        "is_default": false
+      }
+    ],
+    "nutrients_per_100g": {
+      "calories": 61.0,
+      "protein_g": 3.2,
+      "carbs_g": 4.8,
+      "fat_g": 3.3,
+      "fiber_g": 0.0,
+      "sugar_g": 5.1,
+      "sodium_mg": 43.0
+    },
+    "tags": ["dairy", "beverage", "milk"]
+  },
+  {
+    "name": "Greek Yogurt (Non-fat, Plain)",
+    "brand": null,
+    "barcode": null,
+    "is_system": true,
+    "created_by": null,
+    "provenance": {
+      "source_type": "system",
+      "source_name": "starter_pack",
+      "external_id": null,
+      "attribution": "Public Domain / Standard Nutritional Reference",
+      "license": "Public Domain"
+    },
+    "serving_sizes": [
+      {
+        "serving_id": "srv_yogurt_cup",
+        "description": "1 container (170g / 6 oz)",
+        "weight_g": 170.0,
+        "is_default": true
+      },
+      {
+        "serving_id": "srv_yogurt_100g",
+        "description": "100g",
+        "weight_g": 100.0,
+        "is_default": false
+      }
+    ],
+    "nutrients_per_100g": {
+      "calories": 59.0,
+      "protein_g": 10.2,
+      "carbs_g": 3.6,
+      "fat_g": 0.4,
+      "fiber_g": 0.0,
+      "sugar_g": 3.2,
+      "sodium_mg": 36.0
+    },
+    "tags": ["dairy", "yogurt", "protein", "breakfast"]
+  },
+  {
+    "name": "Extra Virgin Olive Oil",
+    "brand": null,
+    "barcode": null,
+    "is_system": true,
+    "created_by": null,
+    "provenance": {
+      "source_type": "system",
+      "source_name": "starter_pack",
+      "external_id": null,
+      "attribution": "Public Domain / Standard Nutritional Reference",
+      "license": "Public Domain"
+    },
+    "serving_sizes": [
+      {
+        "serving_id": "srv_oil_tbsp",
+        "description": "1 tablespoon",
+        "weight_g": 13.5,
+        "is_default": true
+      },
+      {
+        "serving_id": "srv_oil_tsp",
+        "description": "1 teaspoon",
+        "weight_g": 4.5,
+        "is_default": false
+      },
+      {
+        "serving_id": "srv_oil_100g",
+        "description": "100g",
+        "weight_g": 100.0,
+        "is_default": false
+      }
+    ],
+    "nutrients_per_100g": {
+      "calories": 884.0,
+      "protein_g": 0.0,
+      "carbs_g": 0.0,
+      "fat_g": 100.0,
+      "fiber_g": 0.0,
+      "sugar_g": 0.0,
+      "sodium_mg": 2.0
+    },
+    "tags": ["oil", "fat", "condiment", "olive oil"]
+  },
+  {
+    "name": "Natural Peanut Butter",
+    "brand": null,
+    "barcode": null,
+    "is_system": true,
+    "created_by": null,
+    "provenance": {
+      "source_type": "system",
+      "source_name": "starter_pack",
+      "external_id": null,
+      "attribution": "Public Domain / Standard Nutritional Reference",
+      "license": "Public Domain"
+    },
+    "serving_sizes": [
+      {
+        "serving_id": "srv_pb_2tbsp",
+        "description": "2 tablespoons",
+        "weight_g": 32.0,
+        "is_default": true
+      },
+      {
+        "serving_id": "srv_pb_1tbsp",
+        "description": "1 tablespoon",
+        "weight_g": 16.0,
+        "is_default": false
+      },
+      {
+        "serving_id": "srv_pb_100g",
+        "description": "100g",
+        "weight_g": 100.0,
+        "is_default": false
+      }
+    ],
+    "nutrients_per_100g": {
+      "calories": 588.0,
+      "protein_g": 25.1,
+      "carbs_g": 20.0,
+      "fat_g": 50.4,
+      "fiber_g": 8.0,
+      "sugar_g": 9.2,
+      "sodium_mg": 435.0
+    },
+    "tags": ["spread", "nut butter", "snack", "fats"]
+  },
+  {
+    "name": "Almonds (Raw)",
+    "brand": null,
+    "barcode": null,
+    "is_system": true,
+    "created_by": null,
+    "provenance": {
+      "source_type": "system",
+      "source_name": "starter_pack",
+      "external_id": null,
+      "attribution": "Public Domain / Standard Nutritional Reference",
+      "license": "Public Domain"
+    },
+    "serving_sizes": [
+      {
+        "serving_id": "srv_almonds_oz",
+        "description": "1 oz (approx 23 nuts)",
+        "weight_g": 28.35,
+        "is_default": true
+      },
+      {
+        "serving_id": "srv_almonds_100g",
+        "description": "100g",
+        "weight_g": 100.0,
+        "is_default": false
+      }
+    ],
+    "nutrients_per_100g": {
+      "calories": 579.0,
+      "protein_g": 21.2,
+      "carbs_g": 21.6,
+      "fat_g": 49.9,
+      "fiber_g": 12.5,
+      "sugar_g": 4.4,
+      "sodium_mg": 1.0
+    },
+    "tags": ["nuts", "snack", "fats", "almonds"]
+  },
+  {
+    "name": "Black Beans (Cooked)",
+    "brand": null,
+    "barcode": null,
+    "is_system": true,
+    "created_by": null,
+    "provenance": {
+      "source_type": "system",
+      "source_name": "starter_pack",
+      "external_id": null,
+      "attribution": "Public Domain / Standard Nutritional Reference",
+      "license": "Public Domain"
+    },
+    "serving_sizes": [
+      {
+        "serving_id": "srv_beans_cup",
+        "description": "1 cup cooked",
+        "weight_g": 172.0,
+        "is_default": true
+      },
+      {
+        "serving_id": "srv_beans_halfcup",
+        "description": "1/2 cup cooked",
+        "weight_g": 86.0,
+        "is_default": false
+      },
+      {
+        "serving_id": "srv_beans_100g",
+        "description": "100g",
+        "weight_g": 100.0,
+        "is_default": false
+      }
+    ],
+    "nutrients_per_100g": {
+      "calories": 132.0,
+      "protein_g": 8.9,
+      "carbs_g": 23.7,
+      "fat_g": 0.5,
+      "fiber_g": 8.7,
+      "sugar_g": 0.3,
+      "sodium_mg": 1.0
+    },
+    "tags": ["legume", "beans", "fiber", "protein"]
+  },
+  {
+    "name": "Sweet Potato (Raw)",
+    "brand": null,
+    "barcode": null,
+    "is_system": true,
+    "created_by": null,
+    "provenance": {
+      "source_type": "system",
+      "source_name": "starter_pack",
+      "external_id": null,
+      "attribution": "Public Domain / Standard Nutritional Reference",
+      "license": "Public Domain"
+    },
+    "serving_sizes": [
+      {
+        "serving_id": "srv_sweetpotato_med",
+        "description": "1 medium (130g)",
+        "weight_g": 130.0,
+        "is_default": true
+      },
+      {
+        "serving_id": "srv_sweetpotato_100g",
+        "description": "100g",
+        "weight_g": 100.0,
+        "is_default": false
+      }
+    ],
+    "nutrients_per_100g": {
+      "calories": 86.0,
+      "protein_g": 1.6,
+      "carbs_g": 20.1,
+      "fat_g": 0.1,
+      "fiber_g": 3.0,
+      "sugar_g": 4.2,
+      "sodium_mg": 55.0
+    },
+    "tags": ["vegetable", "tuber", "carbs", "produce"]
+  },
+  {
+    "name": "Avocado",
+    "brand": null,
+    "barcode": null,
+    "is_system": true,
+    "created_by": null,
+    "provenance": {
+      "source_type": "system",
+      "source_name": "starter_pack",
+      "external_id": null,
+      "attribution": "Public Domain / Standard Nutritional Reference",
+      "license": "Public Domain"
+    },
+    "serving_sizes": [
+      {
+        "serving_id": "srv_avocado_whole",
+        "description": "1 whole (150g)",
+        "weight_g": 150.0,
+        "is_default": true
+      },
+      {
+        "serving_id": "srv_avocado_half",
+        "description": "1/2 avocado (75g)",
+        "weight_g": 75.0,
+        "is_default": false
+      },
+      {
+        "serving_id": "srv_avocado_100g",
+        "description": "100g",
+        "weight_g": 100.0,
+        "is_default": false
+      }
+    ],
+    "nutrients_per_100g": {
+      "calories": 160.0,
+      "protein_g": 2.0,
+      "carbs_g": 8.5,
+      "fat_g": 14.7,
+      "fiber_g": 6.7,
+      "sugar_g": 0.7,
+      "sodium_mg": 7.0
+    },
+    "tags": ["fruit", "fat", "produce", "avocado"]
+  },
+  {
+    "name": "Whey Protein Powder (Vanilla)",
+    "brand": "Optimum Nutrition",
+    "barcode": "748927028669",
+    "is_system": true,
+    "created_by": null,
+    "provenance": {
+      "source_type": "system",
+      "source_name": "starter_pack",
+      "external_id": null,
+      "attribution": "Public Domain / Standard Nutritional Reference",
+      "license": "Public Domain"
+    },
+    "serving_sizes": [
+      {
+        "serving_id": "srv_whey_scoop",
+        "description": "1 rounded scoop (30.4g)",
+        "weight_g": 30.4,
+        "is_default": true
+      },
+      {
+        "serving_id": "srv_whey_100g",
+        "description": "100g",
+        "weight_g": 100.0,
+        "is_default": false
+      }
+    ],
+    "nutrients_per_100g": {
+      "calories": 395.0,
+      "protein_g": 78.9,
+      "carbs_g": 9.9,
+      "fat_g": 4.9,
+      "fiber_g": 0.0,
+      "sugar_g": 3.3,
+      "sodium_mg": 428.0
+    },
+    "tags": ["supplement", "protein", "shake", "fitness"]
+  }
+]
