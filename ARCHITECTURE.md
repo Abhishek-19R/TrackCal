@@ -1,8 +1,8 @@
 # NutriTrack Architecture Documentation
 
-**Status**: Phase 2A Complete (Food Data Layer & Food APIs) | Phase 2B Pending (Meal Logging Engine) | 42 Passing Tests  
-**Last Updated**: 2026-10-05  
-**Version**: 0.4.0 (Food Data Layer, Starter Foods Seeder, Food APIs & Ownership Isolation)
+**Status**: Phase 2B Complete (Meal Logging Engine & Weight Tracking) | Phase 2C/3 Pending | 69 Passing Tests  
+**Last Updated**: 2026-10-09  
+**Version**: 0.5.0 (Meal Logging Engine, Nutrition Calculator, Weight Tracking & Daily Aggregations)
 
 ---
 
@@ -404,12 +404,15 @@ All endpoints are prefixed with `/api/v1`.
   - In-memory `AsyncMockDatabase` for isolated testing without real MongoDB
   - 42 passing automated tests (15 new: seed, repository, API, ownership, cross-user isolation)
   - External food providers (USDA, Open Food Facts) intentionally deferred to Phase 2C
-- [ ] **Phase 2B: Meal Logging Engine & Weight Tracking**
-  - Meal logging endpoints (`POST /api/v1/meals/log`, `GET /api/v1/meals/day/{date}`, etc.)
-  - Nutrition calculator (`services/nutrition_calculator.py`) — deterministic macro math
-  - Weight tracking endpoints (`POST /api/v1/weights`, `GET /api/v1/weights`, etc.)
-  - Daily nutrient totals aggregation
-  - Automated tests for meal logs, nutrition calculations, and weight tracking
+- [x] **Phase 2B: Meal Logging Engine & Weight Tracking**
+  - Deterministic Nutrition calculator (`services/nutrition_calculator.py`) with 100g basis scaling and banker's rounding
+  - Meal logging repository & service (`repositories/meal_repository.py`, `services/meal_service.py`)
+  - Meal logging endpoints: `GET /api/v1/meals/day/{date}`, `POST /api/v1/meals/log`, `PUT /api/v1/meals/items/{id}`, `DELETE /api/v1/meals/items/{id}`
+  - Snapshot retention of food names and calculated nutrients for historical audit safety
+  - Weight repository & service (`repositories/weight_repository.py`, `services/weight_service.py`)
+  - Weight tracking endpoints: `GET /api/v1/weights`, `POST /api/v1/weights`, `DELETE /api/v1/weights/{id}`
+  - Automatic weight unit normalization (lbs -> kg) and daily upsert semantics
+  - 69 total passing tests (27 new tests covering math, meals, weights, repositories, and cross-user isolation)
 - [ ] **Phase 2C: External Food Providers (Optional)**
   - Integration with USDA FoodData Central and/or Open Food Facts
   - Local caching layer (`provenance.source_type: "cached"`)
@@ -497,3 +500,56 @@ Integration with external public food databases (USDA FoodData Central, Open Foo
 - `provenance.source_type: "external"` and `"cached"` are already validated in models
 - Search scoping already includes cached foods in results
 - The repository `upsert_system_food` pattern can be adapted for cache upserts
+
+---
+
+## 9. Phase 2B Implementation Details
+
+### 9.1 Deterministic Nutrition Calculator
+
+**File**: `app/services/nutrition_calculator.py`  
+**Purpose**: Centralized, reproducible nutrient scaling and aggregation.  
+
+* **Standard Basis**: Nutrients are modeled per 100 grams.  
+* **Scaling Formula**:  
+  $$\text{Total Weight (g)} = \text{serving\_weight\_g} \times \text{number\_of\_servings}$$  
+  $$\text{Nutrient Value} = \text{round}\left(\text{nutrient\_per\_100g} \times \frac{\text{Total Weight (g)}}{100.0},\ 1\right)$$
+* **Rounding Convention**: Standard Python round-half-to-even (banker's rounding) to 1 decimal place.
+* **Input Validation**: Strictly validates that serving weights and quantities are finite floats $> 0$. Rejects NaN, Inf, zero, and negative values with `NutritionCalculationError`.
+* **Missing Fields**: Safely defaults optional nutrients (e.g., fiber) to `0.0` without fabricating unrecorded data.
+
+### 9.2 Meal Logging Architecture
+
+**Components**:
+* `MealRepository` (`repositories/meal_repository.py`): Encapsulates queries against `meal_logs`. All operations enforce `{"user_id": current_user.id}`.
+* `MealService` (`services/meal_service.py`): Handles meal item creation, snapshot retention, serving resolution, item updates, deletions, and daily summary aggregations.
+* `Meals Router` (`api/v1/endpoints/meals.py`):
+  * `GET /api/v1/meals/day/{date}` — Returns all user meals for the day and aggregated `daily_totals`.
+  * `POST /api/v1/meals/log` — Logs items into a meal bucket (`breakfast`, `lunch`, `dinner`, `snack`). Appends to existing meal log for that category/date if one exists.
+  * `PUT /api/v1/meals/items/{log_item_id}` — Updates serving size or quantity and recalculates nutrition.
+  * `DELETE /api/v1/meals/items/{log_item_id}` — Deletes item; deletes parent meal log document if no items remain.
+
+### 9.3 Historical Nutrition Snapshot Retention
+
+When an item is logged, `MealItem` persists a snapshot containing:
+* `food_name`
+* `serving_selected` (description and gram weight)
+* `number_of_servings` and `total_weight_g`
+* `computed_nutrients` (calories, protein, carbs, fat, fiber)
+
+If a food item is modified or deleted from the catalog later, historical logs remain self-contained, accurate, and immutable.
+
+### 9.4 Weight Tracking Architecture
+
+**Components**:
+* `WeightRepository` (`repositories/weight_repository.py`): Encapsulates `weight_logs` queries scoped to `user_id`. Enforces chronological descending sort.
+* `WeightService` (`services/weight_service.py`): Enforces date validation, unit normalization, and single-entry-per-day upsert rules.
+* `Weights Router` (`api/v1/endpoints/weights.py`):
+  * `GET /api/v1/weights` — Lists weight records (supports optional `start_date` and `end_date` bounds).
+  * `POST /api/v1/weights` — Upserts daily weight. Automatically converts `lbs` to `kg` ($1\text{ lb} \approx 0.45359237\text{ kg}$) and validates allowable range ($20.0 \text{ kg} - 500.0 \text{ kg}$).
+  * `DELETE /api/v1/weights/{weight_id}` — Deletes weight entry owned by `current_user.id`.
+
+### 9.5 Date & Timezone Conventions
+
+* **Dates**: Stored as ISO 8601 strings in format `YYYY-MM-DD`. Validated with calendar checking (`datetime.strptime`) to prevent invalid calendar dates (e.g. `2026-02-30`).
+* **Timestamps**: Stored as UTC `datetime` objects (`created_at`, `updated_at`, `logged_at`) via `utc_now()`.

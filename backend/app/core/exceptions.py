@@ -18,3 +18,33 @@ class FoodForbiddenError(AppException):
 class InvalidIdError(AppException):
     """Raised when an identifier string is not a valid MongoDB ObjectId."""
     pass
+
+
+class MealNotFoundError(AppException):
+    """Raised when a meal log cannot be found or is not accessible."""
+    pass
+
+
+class MealItemNotFoundError(AppException):
+    """Raised when a meal item within a meal log cannot be found or is not accessible."""
+    pass
+
+
+class WeightNotFoundError(AppException):
+    """Raised when a weight log entry cannot be found or is not accessible."""
+    pass
+
+
+class WeightForbiddenError(AppException):
+    """Raised when an operation on a weight record is forbidden due to ownership rules."""
+    pass
+
+
+class InvalidDateError(AppException):
+    """Raised when a date string does not follow the expected YYYY-MM-DD ISO format."""
+    pass
+
+
+class NutritionCalculationError(AppException):
+    """Raised when nutrient calculation inputs are non-finite, negative, or invalid."""
+    pass

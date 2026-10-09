@@ -60,6 +60,58 @@ class AsyncMockCursor:
             raise StopAsyncIteration
 
 
+def _extract_values(doc: Any, keys: List[str]) -> List[Any]:
+    if not keys:
+        return [doc]
+    key = keys[0]
+    remaining = keys[1:]
+    if isinstance(doc, dict):
+        if key in doc:
+            return _extract_values(doc[key], remaining)
+        return []
+    elif isinstance(doc, list):
+        res = []
+        for item in doc:
+            res.extend(_extract_values(item, keys))
+        return res
+    return []
+
+
+def _check_condition(val: Any, v: Any) -> bool:
+    if isinstance(v, dict):
+        for op, target in v.items():
+            if op == "$regex":
+                flags = re.IGNORECASE if "i" in v.get("$options", "") else 0
+                if not (val and re.search(target, str(val), flags)):
+                    return False
+            elif op == "$options":
+                continue
+            elif op == "$ne":
+                if val == target:
+                    return False
+            elif op == "$in":
+                if val not in target:
+                    return False
+            elif op == "$gte":
+                if val is None or val < target:
+                    return False
+            elif op == "$lte":
+                if val is None or val > target:
+                    return False
+            elif op == "$gt":
+                if val is None or val <= target:
+                    return False
+            elif op == "$lt":
+                if val is None or val >= target:
+                    return False
+            else:
+                if val != v:
+                    return False
+        return True
+    else:
+        return val == v
+
+
 def _match_document(doc: Dict[str, Any], query: Dict[str, Any]) -> bool:
     for k, v in query.items():
         if k == "$or":
@@ -79,32 +131,13 @@ def _match_document(doc: Dict[str, Any], query: Dict[str, Any]) -> bool:
                 return False
         else:
             keys = k.split(".")
-            val = doc
-            for key in keys:
-                if isinstance(val, dict):
-                    val = val.get(key)
-                else:
-                    val = None
-                    break
-
-            if isinstance(v, dict):
-                if "$regex" in v:
-                    pattern = v["$regex"]
-                    flags = re.IGNORECASE if "i" in v.get("$options", "") else 0
-                    if not (val and re.search(pattern, str(val), flags)):
-                        return False
-                elif "$ne" in v:
-                    if val == v["$ne"]:
-                        return False
-                elif "$in" in v:
-                    if val not in v["$in"]:
-                        return False
-                else:
-                    if val != v:
-                        return False
-            else:
-                if val != v:
-                    return False
+            vals = _extract_values(doc, keys)
+            if not vals:
+                if v is None:
+                    continue
+                return False
+            if not any(_check_condition(val, v) for val in vals):
+                return False
     return True
 
 

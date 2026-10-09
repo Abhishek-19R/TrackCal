@@ -2,8 +2,8 @@
 
 > A polished, modern, open-source nutrition and food tracking web application designed for self-hosting and local ownership.
 
-[![Phase](https://img.shields.io/badge/Phase_2A-Completed-success?style=flat-square)](file:///c:/Projects/Trackal/ARCHITECTURE.md)
-[![Tests](https://img.shields.io/badge/Tests-42_Passing-brightgreen?style=flat-square)](#)
+[![Phase](https://img.shields.io/badge/Phase_2B-Completed-success?style=flat-square)](file:///c:/Projects/Trackal/ARCHITECTURE.md)
+[![Tests](https://img.shields.io/badge/Tests-69_Passing-brightgreen?style=flat-square)](#)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](#)
 [![Python](https://img.shields.io/badge/Backend-FastAPI_+_PyMongo_Async_+_Pydantic-3776AB?style=flat-square)](#)
 [![Database](https://img.shields.io/badge/Database-MongoDB-47A248?style=flat-square)](#)
@@ -26,9 +26,9 @@ NutriTrack empowers individuals to track their daily calories, macronutrients (p
 
 ## 📊 Current Project Status & Progress Tracker
 
-> **Current Phase**: **Phase 2A (Food Data Layer & Food APIs) — COMPLETED** (42 passing tests)  
+> **Current Phase**: **Phase 2B (Meal Logging Engine & Weight Tracking) — COMPLETED** (69 passing tests)  
 > **Food Data Architecture**: **LOCKED & DOCUMENTED**  
-> Next Up: **Phase 2B (Meal Logging Engine & Weight Tracking)**
+> Next Up: **Phase 2C (External Food Providers)** or **Phase 3 (Frontend Foundation & Design System)**
 
 If an AI assistant's context limit is reached, you can seamlessly continue with another model by referencing this status and [ARCHITECTURE.md](file:///c:/Projects/Trackal/ARCHITECTURE.md).
 
@@ -37,10 +37,11 @@ If an AI assistant's context limit is reached, you can seamlessly continue with 
 | **Phase 0** | **Project Initialization & Design** | ✅ **Done** | Tech stack validation, MCP environment check, data model design, API contracts, routing spec, [ARCHITECTURE.md](file:///c:/Projects/Trackal/ARCHITECTURE.md). |
 | **Phase 1** | **Backend Foundation & Database** | ✅ **Done** | FastAPI scaffolding, native PyMongo Async connection pool (`AsyncMongoClient`), Pydantic v2 schemas/models, safe PyObjectId serializer, index manager, `GET /api/v1/health`, locked food provenance, 27 passing automated tests. |
 | **Phase 2A** | **Food Data Layer & Food APIs** | ✅ **Done** | 20-food starter dataset with seed script, `FoodRepository` + `FoodService` layered architecture, food search + CRUD endpoints, 4-tier ownership isolation, `CurrentUser` auth boundary, in-memory mock DB for tests, 42 total passing tests. |
-| **Phase 2B** | **Meal Logging & Weight Tracking** | ⏳ **Next** | Meal logging endpoints, nutrition calculator, weight tracking, daily macro totals. |
+| **Phase 2B** | **Meal Logging & Weight Tracking** | ✅ **Done** | Deterministic nutrition calculator, meal logging CRUD & daily summary aggregation, historical snapshot retention, weight tracking with lbs/kg normalization, 69 total passing tests. |
 | **Phase 2C** | **External Food Providers** | 📋 Deferred | USDA FoodData Central / Open Food Facts integration, local caching. |
-| **Phase 3** | **Frontend Foundation & Design System** | 📋 Pending | Vite + React + Tailwind setup, Google Stitch MCP UI integration, core components. |
+| **Phase 3** | **Frontend Foundation & Design System** | ⏳ **Next** | Vite + React + Tailwind setup, Google Stitch MCP UI integration, core components. |
 | **Phase 4** | **Core User Workflows** | 📋 Pending | Daily Dashboard, Food Log view, Weight Tracker with charts. |
+
 | **Phase 5** | **Analytics & Portability** | 📋 Pending | 7/30/90-day trend analytics, JSON export/import, UI polish. |
 | **Phase 6** | **Optional AI Features** | 📋 Pending | Client-side user-provided key for natural language food entry. |
 
@@ -117,9 +118,9 @@ API docs available at `http://localhost:8000/docs`
 ### Run Tests
 ```bash
 cd backend
-pytest -v
+python -m pytest -v
 ```
-All 42 tests use an in-memory mock database — **no MongoDB connection required for testing**.
+All 69 tests use an in-memory mock database — **no MongoDB connection required for testing**.
 
 ---
 
@@ -135,18 +136,38 @@ All food endpoints are prefixed with `/api/v1/foods`.
 | `PUT` | `/foods/{food_id}` | Update user's own custom food | Owner only |
 | `DELETE` | `/foods/{food_id}` | Delete user's own custom food | Owner only |
 
-**Ownership Rules**:
-* System foods: readable by all, never editable or deletable by users
-* User custom foods: visible, editable, deletable **only** by the creating user
-* Another user's foods: return 404 (existence is never leaked)
+---
 
-**Auth Boundary**: Pass `X-User-ID: <24-char-hex-ObjectId>` header. Full JWT auth deferred to Phase 3+. See [ARCHITECTURE.md §8.5](file:///c:/Projects/Trackal/ARCHITECTURE.md) for details.
+## 🍽️ Meal Logging API Reference (Phase 2B)
+
+All meal logging endpoints are prefixed with `/api/v1/meals`.
+
+| Method | Endpoint | Description | Auth |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/meals/day/{date}` | Retrieve day's meals and aggregated daily nutrient totals | User ID |
+| `POST` | `/meals/log` | Log food items into a meal category (`breakfast`, `lunch`, `dinner`, `snack`) | User ID |
+| `PUT` | `/meals/items/{log_item_id}` | Update quantity or serving of an individual logged item | Owner only |
+| `DELETE` | `/meals/items/{log_item_id}` | Delete an individual logged item | Owner only |
+
+**Deterministic Nutrition Snapshot**: Each logged item preserves a point-in-time snapshot of the food name, chosen serving grams, quantity, and computed macro totals scaled from the 100g base.
+
+---
+
+## ⚖️ Weight Tracking API Reference (Phase 2B)
+
+All weight tracking endpoints are prefixed with `/api/v1/weights`.
+
+| Method | Endpoint | Description | Auth |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/weights?start_date={start}&end_date={end}` | List weight logs ordered descending by date | User ID |
+| `POST` | `/weights` | Record daily weight (supports `weight_kg` or `weight` + `unit="lbs"`, daily upsert) | User ID |
+| `DELETE` | `/weights/{weight_id}` | Delete a specific body weight record | Owner only |
 
 ---
 
 ## 📖 Detailed Architecture & Data Models
 
-For full details on the MongoDB collections (`users`, `user_settings`, `foods`, `meal_logs`, `weight_logs`), compound indexes, API endpoints, frontend routes, and Phase 2A implementation specifics, refer to the [ARCHITECTURE.md](file:///c:/Projects/Trackal/ARCHITECTURE.md) document.
+For full details on the MongoDB collections (`users`, `user_settings`, `foods`, `meal_logs`, `weight_logs`), compound indexes, API endpoints, frontend routes, and Phase 2A/2B implementation specifics, refer to the [ARCHITECTURE.md](file:///c:/Projects/Trackal/ARCHITECTURE.md) document.
 
 ---
 
@@ -157,3 +178,4 @@ When continuing development:
 2. Check the section in [ARCHITECTURE.md](file:///c:/Projects/Trackal/ARCHITECTURE.md) corresponding to the active phase.
 3. Complete that phase's requirements cleanly before advancing.
 4. **After making changes, update both `ARCHITECTURE.md` and `README.md`** so the next developer or AI model can seamlessly pick up where you left off.
+
