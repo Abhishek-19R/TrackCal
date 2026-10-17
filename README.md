@@ -2,8 +2,9 @@
 
 > A polished, modern, open-source nutrition and food tracking web application designed for self-hosting and local ownership.
 
-[![Phase](https://img.shields.io/badge/Phase_2B-Completed-success?style=flat-square)](file:///c:/Projects/Trackal/ARCHITECTURE.md)
+[![Phase](https://img.shields.io/badge/Phase_3-Completed-success?style=flat-square)](file:///c:/Projects/Trackal/ARCHITECTURE.md)
 [![Tests](https://img.shields.io/badge/Tests-69_Passing-brightgreen?style=flat-square)](#)
+[![Frontend](https://img.shields.io/badge/Frontend-Vite_+_React_19_+_Tailwind_v4-10b981?style=flat-square)](#)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](#)
 [![Python](https://img.shields.io/badge/Backend-FastAPI_+_PyMongo_Async_+_Pydantic-3776AB?style=flat-square)](#)
 [![Database](https://img.shields.io/badge/Database-MongoDB-47A248?style=flat-square)](#)
@@ -26,9 +27,11 @@ NutriTrack empowers individuals to track their daily calories, macronutrients (p
 
 ## 📊 Current Project Status & Progress Tracker
 
-> **Current Phase**: **Phase 2B (Meal Logging Engine & Weight Tracking) — COMPLETED** (69 passing tests)  
-> **Food Data Architecture**: **LOCKED & DOCUMENTED**  
-> Next Up: **Phase 2C (External Food Providers)** or **Phase 3 (Frontend Foundation & Design System)**
+> **Current Phase**: **Phase 3 (Frontend Foundation & Design System) — COMPLETED**  
+> **Backend Baseline**: **69 automated tests passing** (pytest + in-memory AsyncMockDatabase)  
+> **Frontend Baseline**: **TypeScript strict build passing (`tsc -b && vite build`) & 0 lint warnings (`oxlint`)**  
+> **Stitch MCP Design System**: **"NutriTrack Emerald Calm" verified & integrated** (`#10b981`, Plus Jakarta Sans, Inter)  
+> Next Up: **Phase 4 (Core User Workflows & Recharts Visualizations)**
 
 If an AI assistant's context limit is reached, you can seamlessly continue with another model by referencing this status and [ARCHITECTURE.md](file:///c:/Projects/Trackal/ARCHITECTURE.md).
 
@@ -39,10 +42,9 @@ If an AI assistant's context limit is reached, you can seamlessly continue with 
 | **Phase 2A** | **Food Data Layer & Food APIs** | ✅ **Done** | 20-food starter dataset with seed script, `FoodRepository` + `FoodService` layered architecture, food search + CRUD endpoints, 4-tier ownership isolation, `CurrentUser` auth boundary, in-memory mock DB for tests, 42 total passing tests. |
 | **Phase 2B** | **Meal Logging & Weight Tracking** | ✅ **Done** | Deterministic nutrition calculator, meal logging CRUD & daily summary aggregation, historical snapshot retention, weight tracking with lbs/kg normalization, 69 total passing tests. |
 | **Phase 2C** | **External Food Providers** | 📋 Deferred | USDA FoodData Central / Open Food Facts integration, local caching. |
-| **Phase 3** | **Frontend Foundation & Design System** | ⏳ **Next** | Vite + React + Tailwind setup, Google Stitch MCP UI integration, core components. |
-| **Phase 4** | **Core User Workflows** | 📋 Pending | Daily Dashboard, Food Log view, Weight Tracker with charts. |
-
-| **Phase 5** | **Analytics & Portability** | 📋 Pending | 7/30/90-day trend analytics, JSON export/import, UI polish. |
+| **Phase 3** | **Frontend Foundation & Design System** | ✅ **Done** | Vite + React 19 + Tailwind CSS v4, Google Stitch design tokens ("NutriTrack Emerald Calm"), typed API client with `X-User-ID`, responsive shell (Sidebar, Header, MobileNav, DevUserBanner), reusable UI primitives, Dashboard, Food Log, Food Database, Weight Tracker, Analytics, Settings, oxlint + TS clean. |
+| **Phase 4** | **Core User Workflows** | ⏳ **Next** | Interactive Daily Dashboard enhancements, inline meal item modification, Recharts weight line charts. |
+| **Phase 5** | **Analytics & Portability** | 📋 Pending | 7/30/90-day trend analytics, JSON backup export/import, UI polish. |
 | **Phase 6** | **Optional AI Features** | 📋 Pending | Client-side user-provided key for natural language food entry. |
 
 ---
@@ -65,18 +67,29 @@ Trackal/
 │   ├── app/
 │   │   ├── api/                  # API routes & dependency injection
 │   │   │   ├── deps.py           # get_current_user, get_db providers
-│   │   │   └── v1/endpoints/     # health.py, foods.py (+ future: meals, weights, etc.)
+│   │   │   └── v1/endpoints/     # health.py, foods.py, meals.py, weights.py
 │   │   ├── core/                 # config, database, auth boundary, exceptions
 │   │   ├── models/               # MongoDB BSON documents & Pydantic ODM
-│   │   ├── repositories/         # Data access layer (food_repository.py)
+│   │   ├── repositories/         # Data access layer (food, meal, weight repositories)
 │   │   ├── schemas/              # Request & Response DTOs
-│   │   ├── services/             # Business logic (food_service, seed_service)
+│   │   ├── services/             # Business logic & deterministic nutrition calculator
 │   │   └── main.py               # Application entrypoint
 │   ├── scripts/                  # CLI utilities (seed_foods.py)
-│   └── tests/                    # Pytest test suites (42 tests)
+│   └── tests/                    # Pytest test suites (69 tests)
 ├── data/                         # Starter food datasets
 │   └── foods/starter_foods.json  # 20 curated system foods
-├── frontend/                     # (Phase 3 — not yet initialized)
+├── frontend/                     # React 19 + TypeScript + Vite Application
+│   ├── src/
+│   │   ├── api/                  # Typed client layer with X-User-ID injection
+│   │   ├── components/           # UI components, layout shell, and modals
+│   │   ├── context/              # AppContext (Dev identity, health state, targets)
+│   │   ├── pages/                # Dashboard, Food Log, Food Database, Weight, Analytics, Settings
+│   │   ├── types/                # TypeScript models mirroring backend Pydantic schemas
+│   │   ├── utils/                # Date and formatting helpers
+│   │   ├── App.tsx               # Root routes and providers
+│   │   ├── index.css             # Tailwind CSS v4 design tokens ("NutriTrack Emerald Calm")
+│   │   └── main.tsx              # Application entrypoint
+│   └── package.json              # Frontend dependencies and scripts
 ├── ARCHITECTURE.md               # Detailed architectural specification & data models
 └── README.md                     # Project overview and instructions
 ```
@@ -88,7 +101,7 @@ Trackal/
 ### Prerequisites
 * Python 3.13+
 * MongoDB instance (local or MongoDB Atlas connection string)
-* Node.js v20+ / v24+ & npm *(only needed from Phase 3 onwards)*
+* Node.js v20+ / v24+ & npm
 
 ### Backend Setup
 ```bash
@@ -109,18 +122,36 @@ python scripts/seed_foods.py
 ```
 This loads the 20 curated starter foods into your MongoDB. Safe to run repeatedly — it upserts system foods and **never touches user-created foods**.
 
-### Run the Server
+### Run the Backend Server
 ```bash
 uvicorn app.main:app --reload
 ```
 API docs available at `http://localhost:8000/docs`
 
-### Run Tests
+### Run Backend Tests
 ```bash
 cd backend
 python -m pytest -v
 ```
 All 69 tests use an in-memory mock database — **no MongoDB connection required for testing**.
+
+### Frontend Setup & Development
+```bash
+cd frontend
+npm install
+
+# Copy environment template if needed
+cp .env.example .env
+
+# Run local development server (http://localhost:5173)
+npm run dev
+
+# Run TypeScript checks & production build
+npm run build
+
+# Run fast linter (oxlint)
+npm run lint
+```
 
 ---
 

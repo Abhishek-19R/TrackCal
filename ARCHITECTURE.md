@@ -417,11 +417,13 @@ All endpoints are prefixed with `/api/v1`.
   - Integration with USDA FoodData Central and/or Open Food Facts
   - Local caching layer (`provenance.source_type: "cached"`)
   - Rate limit management and attribution
-- [ ] **Phase 3: Frontend Foundation & Design System (Stitch MCP)**
-  - Scaffold Vite + React + TypeScript + Tailwind CSS
-  - Leverage Stitch MCP for UI tokens and screen design layouts
-  - Reusable components (Card, Button, CalorieRing, MacroBar)
-  - API client service layer integration
+- [x] **Phase 3: Frontend Foundation & Design System (Stitch MCP)**
+  - Scaffold Vite + React 19 + TypeScript + Tailwind CSS v4
+  - Integrate Stitch MCP design system tokens ("NutriTrack Emerald Calm", `#10b981`)
+  - Reusable UI primitives (Button, Card, Badge, Input, Select, Modal, LoadingSpinner, EmptyState, StatCard, MacroProgressBar)
+  - Responsive layout shell (Sidebar, Header, MobileNav, DevUserBanner, Quick Modals)
+  - Typed API client layer (`apiFetch`, `foodApi`, `mealApi`, `weightApi`, `healthApi`) with `X-User-ID` support
+  - Clean page views: Dashboard, Food Log, Food Database, Weight Tracker, Analytics, Settings, NotFound
 - [ ] **Phase 4: Core User Workflows**
   - Interactive Daily Dashboard
   - Meal Logging Interface with quick search and serving selector
