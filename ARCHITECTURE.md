@@ -1,8 +1,8 @@
 # NutriTrack Architecture Documentation
 
-**Status**: Phase 2B Complete (Meal Logging Engine & Weight Tracking) | Phase 2C/3 Pending | 69 Passing Tests  
-**Last Updated**: 2026-10-09  
-**Version**: 0.5.0 (Meal Logging Engine, Nutrition Calculator, Weight Tracking & Daily Aggregations)
+**Status**: Phase 3 Complete (Frontend Foundation) + Personalized Onboarding | 86 Passing Tests  
+**Last Updated**: 2026-10-19  
+**Version**: 0.6.0 (Personalized Nutrition Onboarding, TDEE Calculator, Profile & Target Management)
 
 ---
 
@@ -64,10 +64,10 @@ Trackal/
 │   │   │       ├── endpoints/
 │   │   │       │   ├── health.py        # ✅ GET /health — app & DB status
 │   │   │       │   ├── foods.py         # ✅ Food search, CRUD, ownership rules
+│   │   │       │   ├── meals.py         # ✅ Daily logs and meal item operations (Phase 2B)
+│   │   │       │   ├── weights.py       # ✅ Weight entries and milestones (Phase 2B)
+│   │   │       │   ├── user_settings.py # ✅ Personalized onboarding & target config (Phase 3B)
 │   │   │       │   ├── auth.py          # 📋 Authentication / session management (future)
-│   │   │       │   ├── users.py         # 📋 User profile & preferences (future)
-│   │   │       │   ├── meals.py         # 📋 Daily logs and meal item operations (Phase 2B)
-│   │   │       │   ├── weights.py       # 📋 Weight entries and milestones (future)
 │   │   │       │   ├── analytics.py     # 📋 Macro summaries and trends (future)
 │   │   │       │   └── export_import.py # 📋 JSON/CSV backup and restore (future)
 │   │   │       └── router.py            # ✅ Central v1 route aggregator
@@ -85,7 +85,10 @@ Trackal/
 │   │   │   ├── meal_log.py       # ✅ Daily log and meal entries
 │   │   │   └── weight_log.py     # ✅ Weight record entity
 │   │   ├── repositories/         # Data access layer (MongoDB queries)
-│   │   │   └── food_repository.py # ✅ Food collection CRUD, search, upsert, access scoping
+│   │   │   ├── food_repository.py # ✅ Food collection CRUD, search, upsert, access scoping
+│   │   │   ├── meal_repository.py # ✅ Meal log CRUD, user-scoped daily queries
+│   │   │   ├── weight_repository.py # ✅ Weight log upsert, list, delete
+│   │   │   └── user_settings_repository.py # ✅ User settings get/save with user-scoping
 │   │   ├── schemas/              # Request / Response DTO schemas
 │   │   │   ├── user.py           # ✅ User DTOs
 │   │   │   ├── food.py           # ✅ FoodCreate, FoodUpdate, FoodResponse, FoodSearchResponse
@@ -95,13 +98,15 @@ Trackal/
 │   │   ├── services/             # Pure business logic layer
 │   │   │   ├── food_service.py   # ✅ Food search, CRUD, ownership enforcement
 │   │   │   ├── seed_service.py   # ✅ Starter foods JSON loader & idempotent seeder
-│   │   │   ├── nutrition_calculator.py  # 📋 Macro and calorie math (Phase 2B)
-│   │   │   ├── meal_service.py   # 📋 Meal logging business logic (Phase 2B)
-│   │   │   └── weight_service.py # 📋 Weight tracking logic (future)
+│   │   │   ├── nutrition_calculator.py  # ✅ Macro and calorie math (100g basis scaling)
+│   │   │   ├── meal_service.py   # ✅ Meal logging business logic
+│   │   │   ├── weight_service.py # ✅ Weight tracking logic
+│   │   │   ├── tdee_calculator.py # ✅ Mifflin–St Jeor BMR, TDEE, macro targets, safety floors
+│   │   │   └── user_settings_service.py # ✅ Onboarding, profile update, target management
 │   │   └── main.py               # ✅ FastAPI application entrypoint with lifespan
 │   ├── scripts/                  # Standalone CLI utilities
 │   │   └── seed_foods.py         # ✅ Run: python scripts/seed_foods.py
-│   ├── tests/                    # Pytest test suite (42 passing tests)
+│   ├── tests/                    # Pytest test suite (86 passing tests)
 │   │   ├── conftest.py           # ✅ Fixtures (async_client, mock_db, client_with_db)
 │   │   ├── mock_db.py            # ✅ In-memory AsyncMockDatabase for isolated testing
 │   │   ├── test_config.py        # ✅ Settings validation tests
@@ -109,15 +114,29 @@ Trackal/
 │   │   ├── test_health.py        # ✅ Health endpoint & DB connectivity tests
 │   │   ├── test_starter_foods.py # ✅ Dataset validation, seed idempotency, user-food safety
 │   │   ├── test_food_repository.py # ✅ Repository CRUD, search scoping, pagination
-│   │   └── test_food_api.py      # ✅ Food API endpoints, ownership, cross-user isolation
+│   │   ├── test_food_api.py      # ✅ Food API endpoints, ownership, cross-user isolation
+│   │   ├── test_meal_api.py      # ✅ Meal logging, aggregation, cross-user isolation
+│   │   ├── test_meal_repository.py # ✅ Meal repository CRUD
+│   │   ├── test_nutrition_calculator.py # ✅ 100g scaling, rounding, aggregation
+│   │   ├── test_weight_api.py    # ✅ Weight CRUD, upsert, unit normalization
+│   │   ├── test_weight_repository.py # ✅ Weight repository operations
+│   │   ├── test_tdee_calculator.py # ✅ BMR/TDEE formulas, safety floors, unit conversion
+│   │   └── test_user_settings_api.py # ✅ Onboarding, profile, overrides, user isolation
 │   ├── .env.example              # ✅ Sample environment template (placeholders only)
 │   ├── requirements.txt          # ✅ Production dependencies (PyMongo native async, no Motor)
 │   └── requirements-dev.txt      # ✅ Testing and linting dependencies
 ├── data/                         # Project data assets & starter seeds
 │   └── foods/
 │       └── starter_foods.json    # ✅ 20 curated starter foods (system provenance)
-├── frontend/                     # 📋 React + Vite + TypeScript Application (Phase 3)
-│   └── (not yet initialized)
+├── frontend/                     # ✅ React 19 + Vite + TypeScript + Tailwind CSS v4
+│   ├── src/
+│   │   ├── api/                  # Typed API client layer (client, foods, meals, weights, health)
+│   │   ├── components/           # UI primitives (ui/), layout shell, modals
+│   │   ├── context/              # AppContext (dev identity, health, targets, toasts)
+│   │   ├── pages/                # Dashboard, FoodLog, FoodDatabase, Weight, Analytics, Settings
+│   │   ├── types/                # TypeScript models mirroring backend schemas
+│   │   └── utils/                # Date and formatting helpers
+│   └── package.json              # Frontend dependencies and scripts
 ├── docs/                         # Additional design artifacts and guides
 ├── ARCHITECTURE.md               # ✅ System blueprint and technical contract
 └── README.md                     # ✅ Project overview, setup, and status
@@ -189,17 +208,30 @@ Represents user identity and authentication credentials.
 ---
 
 ### 4.4 Collection: `user_settings`
-User-specific target goals and unit preferences. Strictly user-owned. **Contains no AI credentials.**
+User-specific profile metrics, nutrition targets, onboarding state, and display preferences. Strictly user-owned. **Contains no AI credentials.**
 ```json
 {
   "_id": "ObjectId",
   "user_id": "ObjectId (ref: users)",
-  "calorie_target": 2200,
+  "profile": {
+    "height_cm": 180.0,
+    "weight_kg": 80.0,
+    "age_years": 30,
+    "sex": "male",             // "male" | "female"
+    "activity_level": "moderately_active", // sedentary | lightly_active | moderately_active | very_active | extremely_active
+    "goal": "maintain",        // "maintain" | "gain" | "lose"
+    "is_onboarding_completed": true
+  },
+  "bmr_estimate": 1780.0,       // Estimated Basal Metabolic Rate (kcal)
+  "tdee_estimate": 2759.0,      // Estimated Total Daily Energy Expenditure (kcal)
+  "is_custom_override": false,  // True if user manually overrode calculated targets
+  "calorie_target": 2759,
   "protein_target_g": 160.0,
   "carb_target_g": 220.0,
   "fat_target_g": 70.0,
-  "water_target_ml": 2500,
-  "unit_system": "metric", // "metric" | "imperial"
+  "water_target_ml": 2800,
+  "unit_system": "metric",      // "metric" | "imperial"
+  "created_at": "ISODate",
   "updated_at": "ISODate"
 }
 ```
@@ -326,36 +358,42 @@ All endpoints are prefixed with `/api/v1`.
 ### 5.1 System & Health (`/api/v1/health`)
 * `GET /api/v1/health` — Returns application status and active MongoDB connectivity status (`connected` / `degraded`).
 
-### 5.2 Authentication & Profile (`/api/v1/auth`, `/api/v1/users`)
+### 5.2 Authentication (`/api/v1/auth`) — Future
 * `POST /api/v1/auth/register` — Create new account
 * `POST /api/v1/auth/login` — Authenticate and receive JWT access token
 * `GET /api/v1/users/me` — Retrieve active user profile
-* `GET /api/v1/users/settings` — Get user calorie & macro goals
-* `PUT /api/v1/users/settings` — Update macro goals, units, calorie target
 
-### 5.3 Foods Catalog (`/api/v1/foods`)
+### 5.3 User Settings, Profile & Onboarding (`/api/v1/user`)
+* `GET /api/v1/user/settings` — Get user settings (profile, targets, onboarding state). Auto-creates default document if none exists.
+* `POST /api/v1/user/onboarding` — Complete first-time onboarding. Accepts physical attributes (metric or imperial), computes BMR/TDEE/macros via Mifflin–St Jeor, and records baseline weight.
+* `PUT /api/v1/user/profile` — Update profile metrics (height, weight, activity, goal). Auto-recalculates targets unless `is_custom_override` is true.
+* `PUT /api/v1/user/targets` — Explicit manual target override. Sets `is_custom_override = true`.
+* `POST /api/v1/user/recalculate-targets` — Force recalculation from saved profile. Clears manual override.
+* `POST /api/v1/user/calculate-preview` — Preview nutrition plan from given inputs without saving (stateless).
+
+### 5.4 Foods Catalog (`/api/v1/foods`)
 * `GET /api/v1/foods/search?q={query}&page=1&limit=20` — Search foods (`is_system: true` OR `provenance.source_type: "cached"` OR `created_by: current_user.id`)
 * `GET /api/v1/foods/{food_id}` — Get full food details and serving options
 * `POST /api/v1/foods` — Create a custom food item (`provenance.source_type: "user"`, `created_by: current_user.id`)
 * `PUT /api/v1/foods/{food_id}` — Update user's custom food item (enforces `created_by == current_user.id`)
 * `DELETE /api/v1/foods/{food_id}` — Delete user's custom food item (enforces `created_by == current_user.id`)
 
-### 5.4 Meal Logging (`/api/v1/meals`)
+### 5.5 Meal Logging (`/api/v1/meals`)
 * `GET /api/v1/meals/day/{date}` — Get all meals and daily nutrient totals for `current_user.id` on date
 * `POST /api/v1/meals/log` — Add food item to a meal
 * `PUT /api/v1/meals/items/{log_item_id}` — Update quantity or serving of a logged item
 * `DELETE /api/v1/meals/items/{log_item_id}` — Remove item from meal log
 
-### 5.5 Weight Tracking (`/api/v1/weights`)
+### 5.6 Weight Tracking (`/api/v1/weights`)
 * `GET /api/v1/weights?start_date={date}&end_date={date}` — Historical weight list for `current_user.id`
 * `POST /api/v1/weights` — Log or update today's weight for `current_user.id`
 * `DELETE /api/v1/weights/{weight_id}` — Remove a weight record for `current_user.id`
 
-### 5.6 Analytics & Summaries (`/api/v1/analytics`)
+### 5.7 Analytics & Summaries (`/api/v1/analytics`)
 * `GET /api/v1/analytics/daily-summary/{date}` — Calorie & macro balance vs goals
 * `GET /api/v1/analytics/trends?range={7d|30d|90d}` — Aggregated calorie and macro trends
 
-### 5.7 Data Portability (`/api/v1/export-import`)
+### 5.8 Data Portability (`/api/v1/export-import`)
 * `GET /api/v1/export-import/export` — Export user's entire dataset as structured JSON
 * `POST /api/v1/export-import/import` — Restore or import data from JSON backup
 
@@ -424,6 +462,16 @@ All endpoints are prefixed with `/api/v1`.
   - Responsive layout shell (Sidebar, Header, MobileNav, DevUserBanner, Quick Modals)
   - Typed API client layer (`apiFetch`, `foodApi`, `mealApi`, `weightApi`, `healthApi`) with `X-User-ID` support
   - Clean page views: Dashboard, Food Log, Food Database, Weight Tracker, Analytics, Settings, NotFound
+- [x] **Phase 3B: Personalized Nutrition Onboarding (Backend ✅ / Frontend In-Progress)**
+  - Mifflin–St Jeor BMR calculator, activity multipliers (1.2–1.9), goal adjustments
+  - Macro targets (protein g/kg by goal, fat 25% minimum 0.7g/kg, carbs remainder)
+  - Safety calorie floors (1500 kcal male / 1200 kcal female) with `floor_applied` advisory
+  - Imperial/metric conversion (exact NIST factors)
+  - Underage advisory guard (18+ requirement for adult equations)
+  - User-scoped settings and profile persistence in MongoDB
+  - Target override state machine (auto-recalc vs custom manual override)
+  - Initial baseline weight logging during onboarding
+  - 6 REST endpoints under `/api/v1/user/`
 - [ ] **Phase 4: Core User Workflows**
   - Interactive Daily Dashboard
   - Meal Logging Interface with quick search and serving selector
@@ -555,3 +603,87 @@ If a food item is modified or deleted from the catalog later, historical logs re
 
 * **Dates**: Stored as ISO 8601 strings in format `YYYY-MM-DD`. Validated with calendar checking (`datetime.strptime`) to prevent invalid calendar dates (e.g. `2026-02-30`).
 * **Timestamps**: Stored as UTC `datetime` objects (`created_at`, `updated_at`, `logged_at`) via `utc_now()`.
+
+---
+
+## 10. Phase 3B: Personalized Nutrition Onboarding
+
+### 10.1 Deterministic TDEE Calculator
+
+**File**: `app/services/tdee_calculator.py`  
+**Purpose**: Offline, deterministic calorie and macronutrient estimation engine.
+
+#### Mifflin–St Jeor BMR Equation
+* **Male**: `BMR = 10 × weight_kg + 6.25 × height_cm − 5 × age + 5`
+* **Female**: `BMR = 10 × weight_kg + 6.25 × height_cm − 5 × age − 161`
+
+#### Activity Multipliers (TDEE = BMR × Multiplier)
+| Activity Level | Multiplier | Description |
+| :--- | :--- | :--- |
+| Sedentary | 1.20 | Little/no exercise, desk job |
+| Lightly Active | 1.375 | Light exercise 1–3 days/week |
+| Moderately Active | 1.55 | Moderate exercise 3–5 days/week |
+| Very Active | 1.725 | Hard exercise 6–7 days/week |
+| Extremely Active | 1.90 | Very hard daily exercise or physical job |
+
+#### Goal Calorie Adjustments
+| Goal | Delta | Rationale |
+| :--- | :--- | :--- |
+| Maintain | +0 | TDEE maintenance |
+| Gain | +300 | Conservative lean surplus |
+| Lose | −400 | Moderate deficit |
+
+#### Protein Targets (g/kg body weight/day)
+| Goal | g/kg | Range |
+| :--- | :--- | :--- |
+| Gain | 2.0 | 1.6–2.2 (resistance training) |
+| Lose | 1.8 | 1.6–2.0 (lean mass preservation) |
+| Maintain | 1.4 | 1.2–1.6 (general active health) |
+
+#### Safety Floors
+* Male minimum: 1500 kcal/day
+* Female minimum: 1200 kcal/day
+* `floor_applied` flag is returned to the frontend to inform the user
+
+#### Macronutrient Split
+* **Protein**: goal-based g/kg × body weight
+* **Fat**: 25% of target calories (minimum 0.7 g/kg for essential fats)
+* **Carbohydrates**: remaining calories after protein and fat
+* **Water**: 35 ml/kg body weight, rounded to nearest 100ml, clamped [2000, 5000] ml
+
+### 10.2 Onboarding Flow
+
+**Endpoint**: `POST /api/v1/user/onboarding`  
+**Flow**:
+1. Accept physical attributes (metric or imperial)
+2. Schema validator normalizes imperial → metric (cm, kg)
+3. Calculate nutrition plan via `calculate_nutrition_plan()`
+4. Store profile, BMR/TDEE estimates, and calculated targets
+5. Mark `is_onboarding_completed = true`
+6. Record initial baseline weight in `weight_logs`
+7. Return full `UserSettingsResponse`
+
+### 10.3 Target Override State Machine
+
+```
+New User → Default Targets (2000 kcal)
+    ↓ POST /onboarding
+Calculated Targets (is_custom_override: false)
+    ↓ PUT /profile (auto-recalculate if not overridden)
+Calculated Targets (updated)
+    ↓ PUT /targets (manual entry)
+Manual Override (is_custom_override: true)
+    ↓ PUT /profile (profile updates, but targets preserved)
+Manual Override (profile updated, targets untouched)
+    ↓ POST /recalculate-targets
+Calculated Targets (is_custom_override: false, cleared)
+```
+
+### 10.4 Input Validation
+
+* Weight: 20.0–500.0 kg (44.0–1100.0 lbs)
+* Height: 50.0–260.0 cm (1–8 ft)
+* Age: 18–120 years (under 18 → `UnderageAdvisoryError`)
+* Sex: `"male"` or `"female"` (equation selection, not identity)
+* Activity level: one of 5 standard levels
+* Goal: `"maintain"`, `"gain"`, or `"lose"`

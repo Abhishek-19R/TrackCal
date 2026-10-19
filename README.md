@@ -2,8 +2,8 @@
 
 > A polished, modern, open-source nutrition and food tracking web application designed for self-hosting and local ownership.
 
-[![Phase](https://img.shields.io/badge/Phase_3-Completed-success?style=flat-square)](file:///c:/Projects/Trackal/ARCHITECTURE.md)
-[![Tests](https://img.shields.io/badge/Tests-69_Passing-brightgreen?style=flat-square)](#)
+[![Phase](https://img.shields.io/badge/Phase_3B-In_Progress-amber?style=flat-square)](file:///c:/Projects/Trackal/ARCHITECTURE.md)
+[![Tests](https://img.shields.io/badge/Tests-86_Passing-brightgreen?style=flat-square)](#)
 [![Frontend](https://img.shields.io/badge/Frontend-Vite_+_React_19_+_Tailwind_v4-10b981?style=flat-square)](#)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](#)
 [![Python](https://img.shields.io/badge/Backend-FastAPI_+_PyMongo_Async_+_Pydantic-3776AB?style=flat-square)](#)
@@ -27,11 +27,11 @@ NutriTrack empowers individuals to track their daily calories, macronutrients (p
 
 ## 📊 Current Project Status & Progress Tracker
 
-> **Current Phase**: **Phase 3 (Frontend Foundation & Design System) — COMPLETED**  
-> **Backend Baseline**: **69 automated tests passing** (pytest + in-memory AsyncMockDatabase)  
+> **Current Phase**: **Phase 3B (Personalized Nutrition Onboarding) — BACKEND COMPLETE / FRONTEND IN PROGRESS**  
+> **Backend Baseline**: **86 automated tests passing** (pytest + in-memory AsyncMockDatabase)  
 > **Frontend Baseline**: **TypeScript strict build passing (`tsc -b && vite build`) & 0 lint warnings (`oxlint`)**  
 > **Stitch MCP Design System**: **"NutriTrack Emerald Calm" verified & integrated** (`#10b981`, Plus Jakarta Sans, Inter)  
-> Next Up: **Phase 4 (Core User Workflows & Recharts Visualizations)**
+> Next Up: **Phase 3B (Frontend Onboarding Wizard & Settings Integration)**
 
 If an AI assistant's context limit is reached, you can seamlessly continue with another model by referencing this status and [ARCHITECTURE.md](file:///c:/Projects/Trackal/ARCHITECTURE.md).
 
@@ -43,7 +43,8 @@ If an AI assistant's context limit is reached, you can seamlessly continue with 
 | **Phase 2B** | **Meal Logging & Weight Tracking** | ✅ **Done** | Deterministic nutrition calculator, meal logging CRUD & daily summary aggregation, historical snapshot retention, weight tracking with lbs/kg normalization, 69 total passing tests. |
 | **Phase 2C** | **External Food Providers** | 📋 Deferred | USDA FoodData Central / Open Food Facts integration, local caching. |
 | **Phase 3** | **Frontend Foundation & Design System** | ✅ **Done** | Vite + React 19 + Tailwind CSS v4, Google Stitch design tokens ("NutriTrack Emerald Calm"), typed API client with `X-User-ID`, responsive shell (Sidebar, Header, MobileNav, DevUserBanner), reusable UI primitives, Dashboard, Food Log, Food Database, Weight Tracker, Analytics, Settings, oxlint + TS clean. |
-| **Phase 4** | **Core User Workflows** | ⏳ **Next** | Interactive Daily Dashboard enhancements, inline meal item modification, Recharts weight line charts. |
+| **Phase 3B** | **Personalized Nutrition Onboarding** | ⏳ **In Progress** | Mifflin–St Jeor BMR & TDEE calculator, goal/activity adjustments, safety floors, user-scoped settings, target override state machine, baseline weight log, 6 REST endpoints (Backend ✅ 86 tests / Frontend in-progress). |
+| **Phase 4** | **Core User Workflows** | 📋 Pending | Interactive Daily Dashboard enhancements, inline meal item modification, Recharts weight line charts. |
 | **Phase 5** | **Analytics & Portability** | 📋 Pending | 7/30/90-day trend analytics, JSON backup export/import, UI polish. |
 | **Phase 6** | **Optional AI Features** | 📋 Pending | Client-side user-provided key for natural language food entry. |
 
@@ -67,15 +68,15 @@ Trackal/
 │   ├── app/
 │   │   ├── api/                  # API routes & dependency injection
 │   │   │   ├── deps.py           # get_current_user, get_db providers
-│   │   │   └── v1/endpoints/     # health.py, foods.py, meals.py, weights.py
+│   │   │   └── v1/endpoints/     # health.py, foods.py, meals.py, weights.py, user_settings.py
 │   │   ├── core/                 # config, database, auth boundary, exceptions
-│   │   ├── models/               # MongoDB BSON documents & Pydantic ODM
-│   │   ├── repositories/         # Data access layer (food, meal, weight repositories)
-│   │   ├── schemas/              # Request & Response DTOs
-│   │   ├── services/             # Business logic & deterministic nutrition calculator
+│   │   ├── models/               # MongoDB BSON documents & Pydantic ODM (user_settings.py, etc.)
+│   │   ├── repositories/         # Data access layer (food, meal, weight, user_settings)
+│   │   ├── schemas/              # Request & Response DTOs (user.py, food.py, meal_log.py, etc.)
+│   │   ├── services/             # Business logic (tdee_calculator, user_settings, nutrition)
 │   │   └── main.py               # Application entrypoint
 │   ├── scripts/                  # CLI utilities (seed_foods.py)
-│   └── tests/                    # Pytest test suites (69 tests)
+│   └── tests/                    # Pytest test suites (86 passing tests)
 ├── data/                         # Starter food datasets
 │   └── foods/starter_foods.json  # 20 curated system foods
 ├── frontend/                     # React 19 + TypeScript + Vite Application
@@ -133,7 +134,7 @@ API docs available at `http://localhost:8000/docs`
 cd backend
 python -m pytest -v
 ```
-All 69 tests use an in-memory mock database — **no MongoDB connection required for testing**.
+All 86 tests use an in-memory mock database — **no MongoDB connection required for testing**.
 
 ### Frontend Setup & Development
 ```bash
@@ -193,6 +194,21 @@ All weight tracking endpoints are prefixed with `/api/v1/weights`.
 | `GET` | `/weights?start_date={start}&end_date={end}` | List weight logs ordered descending by date | User ID |
 | `POST` | `/weights` | Record daily weight (supports `weight_kg` or `weight` + `unit="lbs"`, daily upsert) | User ID |
 | `DELETE` | `/weights/{weight_id}` | Delete a specific body weight record | Owner only |
+
+---
+
+## 🎯 User Settings & Onboarding API Reference (Phase 3B)
+
+All user settings endpoints are prefixed with `/api/v1/user`.
+
+| Method | Endpoint | Description | Auth |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/user/settings` | Get current user settings (creates defaults if missing) | User ID |
+| `POST` | `/user/onboarding` | Complete onboarding with physical profile, BMR/TDEE calculation & baseline weight | User ID |
+| `PUT` | `/user/profile` | Update physical profile (auto-recalculates targets if not overridden) | User ID |
+| `PUT` | `/user/targets` | Manually override daily nutrition targets (`is_custom_override: true`) | User ID |
+| `POST` | `/user/recalculate-targets` | Reset targets to calculated Mifflin–St Jeor values (clears override) | User ID |
+| `POST` | `/user/calculate-preview` | Stateless preview of BMR, TDEE, macros without persisting | Public/User ID |
 
 ---
 
