@@ -7,10 +7,11 @@ import { Header } from './Header.tsx'
 import { MobileNav } from './MobileNav.tsx'
 import { QuickLogFoodModal } from '../modals/QuickLogFoodModal.tsx'
 import { QuickLogWeightModal } from '../modals/QuickLogWeightModal.tsx'
+import { OnboardingModal } from '../modals/OnboardingModal.tsx'
 import { useApp } from '../../context/AppContext.tsx'
 
 export const AppLayout: React.FC = () => {
-  const { toasts, dismissToast } = useApp()
+  const { toasts, dismissToast, onboardingModalOpen, setOnboardingModalOpen } = useApp()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [quickFoodModalOpen, setQuickFoodModalOpen] = useState(false)
   const [quickWeightModalOpen, setQuickWeightModalOpen] = useState(false)
@@ -43,7 +44,12 @@ export const AppLayout: React.FC = () => {
         </div>
       </div>
 
-      {/* Global Quick Action Modals */}
+      {/* Global Modals */}
+      <OnboardingModal
+        isOpen={onboardingModalOpen}
+        onClose={() => setOnboardingModalOpen(false)}
+      />
+
       <QuickLogFoodModal
         isOpen={quickFoodModalOpen}
         onClose={() => setQuickFoodModalOpen(false)}

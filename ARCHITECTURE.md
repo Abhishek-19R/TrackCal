@@ -462,7 +462,7 @@ All endpoints are prefixed with `/api/v1`.
   - Responsive layout shell (Sidebar, Header, MobileNav, DevUserBanner, Quick Modals)
   - Typed API client layer (`apiFetch`, `foodApi`, `mealApi`, `weightApi`, `healthApi`) with `X-User-ID` support
   - Clean page views: Dashboard, Food Log, Food Database, Weight Tracker, Analytics, Settings, NotFound
-- [x] **Phase 3B: Personalized Nutrition Onboarding (Backend ✅ / Frontend In-Progress)**
+- [x] **Phase 3B: Personalized Nutrition Onboarding (Completed ✅)**
   - Mifflin–St Jeor BMR calculator, activity multipliers (1.2–1.9), goal adjustments
   - Macro targets (protein g/kg by goal, fat 25% minimum 0.7g/kg, carbs remainder)
   - Safety calorie floors (1500 kcal male / 1200 kcal female) with `floor_applied` advisory
@@ -472,6 +472,10 @@ All endpoints are prefixed with `/api/v1`.
   - Target override state machine (auto-recalc vs custom manual override)
   - Initial baseline weight logging during onboarding
   - 6 REST endpoints under `/api/v1/user/`
+  - Multi-step onboarding modal wizard (`OnboardingModal.tsx`) with real-time preview
+  - Interactive Settings page with physical profile management, override controls & recalculation
+  - Dashboard integration with onboarding setup prompt and live metabolism/target basis chips
+  - Typed user settings API client (`userSettingsApi`) and AppContext synchronization
 - [ ] **Phase 4: Core User Workflows**
   - Interactive Daily Dashboard
   - Meal Logging Interface with quick search and serving selector

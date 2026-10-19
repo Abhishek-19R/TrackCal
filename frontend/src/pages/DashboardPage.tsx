@@ -6,6 +6,7 @@ import {
   Flame,
   Plus,
   Scale,
+  Sparkles,
   Trash2,
   UtensilsCrossed,
 } from 'lucide-react'
@@ -25,7 +26,14 @@ import type { WeightLogResponse } from '../types/weight.ts'
 import type { MealType } from '../types/meal.ts'
 
 export const DashboardPage: React.FC = () => {
-  const { targets, devUserId, addToast } = useApp()
+  const {
+    targets,
+    devUserId,
+    addToast,
+    userSettings,
+    isOnboardingCompleted,
+    setOnboardingModalOpen,
+  } = useApp()
   const todayStr = new Date().toISOString().split('T')[0]
 
   const [dailyData, setDailyData] = useState<DailyMealsSummaryResponse | null>(null)
@@ -143,6 +151,39 @@ export const DashboardPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Onboarding Notice Banner */}
+      {!isOnboardingCompleted && (
+        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/90 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs animate-in fade-in slide-in-from-top-2">
+          <div className="flex items-start gap-3">
+            <div className="p-2.5 bg-amber-100/80 rounded-xl text-amber-800 shrink-0 mt-0.5">
+              <Sparkles className="w-5 h-5 text-amber-700" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-slate-900 text-sm">
+                  Personalize Your Nutrition Plan
+                </h3>
+                <Badge variant="amber">Initial Setup</Badge>
+              </div>
+              <p className="text-xs text-slate-600 mt-1 max-w-xl leading-relaxed">
+                You're currently tracking with baseline defaults (2,000 kcal). Complete the scientific
+                Mifflin–St Jeor onboarding to tailor your daily calories, protein, and hydration targets
+                to your body.
+              </p>
+            </div>
+          </div>
+          <Button
+            variant="primary"
+            size="sm"
+            className="shrink-0 self-start sm:self-center bg-amber-600 hover:bg-amber-700 text-white"
+            onClick={() => setOnboardingModalOpen(true)}
+            leftIcon={<Sparkles className="w-4 h-4" />}
+          >
+            Start Setup
+          </Button>
+        </div>
+      )}
+
       {isLoading ? (
         <LoadingSpinner text="Loading daily dashboard metrics..." className="py-16" />
       ) : (
@@ -244,6 +285,40 @@ export const DashboardPage: React.FC = () => {
                     <p className="text-[11px] font-semibold text-emerald-700 uppercase">Left</p>
                     <p className="text-sm font-bold text-emerald-800">{remainingCalories} kcal</p>
                   </div>
+                </div>
+
+                {/* Target Source & Metabolism Summary */}
+                <div className="mt-3 w-full pt-3 border-t border-slate-100 flex flex-col gap-2 text-xs">
+                  <div className="flex items-center justify-between text-slate-500">
+                    <span>Target Basis:</span>
+                    {userSettings?.is_custom_override ? (
+                      <Badge variant="purple">Manual Override</Badge>
+                    ) : userSettings?.bmr_estimate ? (
+                      <Badge variant="emerald">Mifflin–St Jeor</Badge>
+                    ) : (
+                      <Badge variant="slate">Default</Badge>
+                    )}
+                  </div>
+
+                  {userSettings?.bmr_estimate && userSettings?.tdee_estimate && (
+                    <div className="flex items-center justify-between text-slate-500 text-[11px]">
+                      <span>BMR: {Math.round(userSettings.bmr_estimate)} kcal</span>
+                      <span>TDEE: {Math.round(userSettings.tdee_estimate)} kcal</span>
+                    </div>
+                  )}
+
+                  {userSettings?.profile?.goal && (
+                    <div className="flex items-center justify-between text-slate-500 text-[11px]">
+                      <span>Goal:</span>
+                      <span className="font-semibold text-slate-700 capitalize">
+                        {userSettings.profile.goal === 'lose'
+                          ? 'Deficit (-400 kcal)'
+                          : userSettings.profile.goal === 'gain'
+                          ? 'Surplus (+300 kcal)'
+                          : 'Maintenance'}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
