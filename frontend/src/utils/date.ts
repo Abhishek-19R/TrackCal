@@ -15,3 +15,23 @@ export const formatDateDisplay = (dateStr: string): string => {
     return dateStr
   }
 }
+
+export const formatRelativeDateDisplay = (dateStr: string): string => {
+  const today = getTodayDateString()
+  if (dateStr === today) {
+    return 'Today'
+  }
+  try {
+    const [year, month, day] = dateStr.split('-').map(Number)
+    const date = new Date(year, month - 1, day)
+    const [tYear, tMonth, tDay] = today.split('-').map(Number)
+    const tDate = new Date(tYear, tMonth - 1, tDay)
+    const diffDays = Math.round((date.getTime() - tDate.getTime()) / (1000 * 60 * 60 * 24))
+    if (diffDays === -1) return 'Yesterday'
+    if (diffDays === 1) return 'Tomorrow'
+    return formatDateDisplay(dateStr)
+  } catch {
+    return formatDateDisplay(dateStr)
+  }
+}
+

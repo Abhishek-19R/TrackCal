@@ -9,6 +9,8 @@ import { QuickLogFoodModal } from '../modals/QuickLogFoodModal.tsx'
 import { QuickLogWeightModal } from '../modals/QuickLogWeightModal.tsx'
 import { OnboardingModal } from '../modals/OnboardingModal.tsx'
 import { useApp } from '../../context/AppContext.tsx'
+import { getTodayDateString } from '../../utils/date.ts'
+import { getDefaultMealType } from '../../types/meal.ts'
 
 export const AppLayout: React.FC = () => {
   const { toasts, dismissToast, onboardingModalOpen, setOnboardingModalOpen } = useApp()
@@ -53,6 +55,8 @@ export const AppLayout: React.FC = () => {
       <QuickLogFoodModal
         isOpen={quickFoodModalOpen}
         onClose={() => setQuickFoodModalOpen(false)}
+        initialDate={getTodayDateString()}
+        initialMealType={getDefaultMealType()}
         onSuccess={() => {
           // Trigger custom event so active pages can re-fetch if needed
           window.dispatchEvent(new CustomEvent('nutritrack:data-refresh'))

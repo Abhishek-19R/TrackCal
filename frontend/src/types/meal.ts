@@ -1,5 +1,20 @@
 export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack'
 
+export const MEAL_TYPE_META: Record<MealType, { label: string; icon: string }> = {
+  breakfast: { label: 'Breakfast', icon: '🍳' },
+  lunch: { label: 'Lunch', icon: '🥗' },
+  dinner: { label: 'Dinner', icon: '🍲' },
+  snack: { label: 'Snacks & Extras', icon: '🍎' },
+}
+
+export const getDefaultMealType = (): MealType => {
+  const hour = new Date().getHours()
+  if (hour < 11) return 'breakfast'
+  if (hour < 15) return 'lunch'
+  if (hour < 18) return 'snack'
+  return 'dinner'
+}
+
 export interface ComputedNutrients {
   calories: number
   protein_g: number

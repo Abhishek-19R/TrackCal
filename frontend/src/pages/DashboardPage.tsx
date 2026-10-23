@@ -23,7 +23,7 @@ import { weightApi } from '../api/weights.ts'
 import { useApp } from '../context/AppContext.tsx'
 import type { DailyMealsSummaryResponse } from '../types/meal.ts'
 import type { WeightLogResponse } from '../types/weight.ts'
-import type { MealType } from '../types/meal.ts'
+import { type MealType, getDefaultMealType } from '../types/meal.ts'
 
 export const DashboardPage: React.FC = () => {
   const {
@@ -134,7 +134,7 @@ export const DashboardPage: React.FC = () => {
             variant="secondary"
             size="md"
             className="bg-white text-emerald-900 hover:bg-emerald-50 shadow-sm"
-            onClick={() => setLogFoodModal({ open: true, mealType: 'breakfast' })}
+            onClick={() => setLogFoodModal({ open: true, mealType: getDefaultMealType() })}
             leftIcon={<Plus className="w-4 h-4 text-emerald-600" />}
           >
             Log Meal

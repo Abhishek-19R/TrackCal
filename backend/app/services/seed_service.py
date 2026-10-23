@@ -69,7 +69,7 @@ async def seed_starter_foods(
     Safe to execute repeatedly: updates existing system records and inserts new ones.
     Never modifies user-created foods.
     """
-    target_db = db or get_database()
+    target_db = db if db is not None else get_database()
     repository = FoodRepository(target_db)
 
     foods = load_and_validate_starter_foods(file_path)
