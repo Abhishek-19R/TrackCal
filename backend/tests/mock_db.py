@@ -145,11 +145,53 @@ class AsyncMockCollection:
     def __init__(self, name: str):
         self.name = name
         self.docs: List[Dict[str, Any]] = []
+        self._indexes: Dict[str, Any] = {}
 
     async def insert_one(self, doc: Dict[str, Any]):
         copied = copy.deepcopy(doc)
         if "_id" not in copied or copied["_id"] is None:
             copied["_id"] = ObjectId()
+
+        # Enforce unique index constraints
+        for idx_name, idx_doc in self._indexes.items():
+            if idx_doc.get("unique"):
+                keys = idx_doc.get("key", {})
+                partial = idx_doc.get("partialFilterExpression", {})
+                sparse = idx_doc.get("sparse", False)
+
+                for field in keys:
+                    val = copied.get(field)
+                    if partial:
+                        type_req = partial.get(field, {}).get("$type")
+                        if type_req == "string" and not isinstance(val, str):
+                            # Excluded from index by partialFilterExpression
+                            continue
+                    elif sparse and field not in copied:
+                        # Excluded from sparse index because field is absent
+                        continue
+
+                    # Check uniqueness against existing documents
+                    for existing in self.docs:
+                        existing_val = existing.get(field)
+                        if partial:
+                            if isinstance(existing_val, str) and existing_val == val:
+                                from pymongo.errors import DuplicateKeyError
+                                raise DuplicateKeyError(
+                                    f"E11000 duplicate key error collection: mock.{self.name} index: {idx_name} dup key: {{ {field}: {val} }}"
+                                )
+                        elif sparse:
+                            if field in existing and existing_val == val:
+                                from pymongo.errors import DuplicateKeyError
+                                raise DuplicateKeyError(
+                                    f"E11000 duplicate key error collection: mock.{self.name} index: {idx_name} dup key: {{ {field}: {val} }}"
+                                )
+                        else:
+                            if existing_val == val:
+                                from pymongo.errors import DuplicateKeyError
+                                raise DuplicateKeyError(
+                                    f"E11000 duplicate key error collection: mock.{self.name} index: {idx_name} dup key: {{ {field}: {val} }}"
+                                )
+
         self.docs.append(copied)
         return copied
 
@@ -187,7 +229,16 @@ class AsyncMockCollection:
         return DeleteResult(deleted_count=0)
 
     async def create_indexes(self, indexes):
-        pass
+        for idx in indexes:
+            doc = idx.document if hasattr(idx, "document") else idx
+            name = doc.get("name") if isinstance(doc, dict) else getattr(idx, "name", "idx")
+            self._indexes[name] = copy.deepcopy(doc) if isinstance(doc, dict) else {"name": name}
+
+    async def index_information(self) -> Dict[str, Any]:
+        return copy.deepcopy(self._indexes)
+
+    async def drop_index(self, name: str) -> None:
+        self._indexes.pop(name, None)
 
 
 class AsyncMockDatabase:

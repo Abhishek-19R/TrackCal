@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from app.models.food import Food, FoodProvenance, NutrientsPer100g, ServingSize
 
 
@@ -13,6 +13,16 @@ class FoodCreate(BaseModel):
     tags: List[str] = Field(default_factory=list)
     provenance: Optional[FoodProvenance] = None
 
+    @field_validator("barcode", mode="before")
+    @classmethod
+    def normalize_barcode(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return None
+        if isinstance(v, str):
+            v_str = v.strip()
+            return v_str if v_str else None
+        return v
+
 
 class FoodUpdate(BaseModel):
     name: Optional[str] = Field(default=None, min_length=1, max_length=200)
@@ -21,6 +31,16 @@ class FoodUpdate(BaseModel):
     serving_sizes: Optional[List[ServingSize]] = None
     nutrients_per_100g: Optional[NutrientsPer100g] = None
     tags: Optional[List[str]] = None
+
+    @field_validator("barcode", mode="before")
+    @classmethod
+    def normalize_barcode(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return None
+        if isinstance(v, str):
+            v_str = v.strip()
+            return v_str if v_str else None
+        return v
 
 
 class FoodResponse(BaseModel):

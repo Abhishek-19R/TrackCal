@@ -1,6 +1,6 @@
 import uuid
 from typing import List, Literal, Optional
-from pydantic import Field, model_validator
+from pydantic import Field, field_validator, model_validator
 from app.models.common import AuditedMongoModel, MongoBaseModel, PyObjectId
 
 
@@ -58,6 +58,16 @@ class Food(AuditedMongoModel):
     name: str = Field(..., min_length=1, max_length=200)
     brand: Optional[str] = Field(default=None, max_length=100)
     barcode: Optional[str] = Field(default=None, max_length=50)
+
+    @field_validator("barcode", mode="before")
+    @classmethod
+    def normalize_barcode(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return None
+        if isinstance(v, str):
+            v_str = v.strip()
+            return v_str if v_str else None
+        return v
     is_system: bool = Field(default=False, description="True for pre-seeded public foods, False for custom user or external foods")
     created_by: Optional[PyObjectId] = Field(default=None, description="User ID for custom foods; null for system/external/cached foods")
     provenance: FoodProvenance = Field(default_factory=lambda: FoodProvenance(source_type="user"))

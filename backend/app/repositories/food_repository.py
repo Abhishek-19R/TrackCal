@@ -112,6 +112,8 @@ class FoodRepository:
             food.id = ObjectId()
 
         doc = food.model_dump(by_alias=True)
+        if doc.get("barcode") is None:
+            doc.pop("barcode", None)
         await self.collection.insert_one(doc)
         return food
 

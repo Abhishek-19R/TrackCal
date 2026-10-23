@@ -1,3 +1,4 @@
+import inspect
 import logging
 import time
 from typing import Optional, Tuple
@@ -90,12 +91,40 @@ async def ensure_indexes(db: AsyncDatabase) -> None:
     ])
 
     # 3. foods indexes
+    # Migrate legacy sparse barcode index if present (which collides on multiple barcode: null)
+    try:
+        index_info_fn = getattr(db.foods, "index_information", None)
+        if callable(index_info_fn):
+            res = index_info_fn()
+            existing_indexes = await res if inspect.isawaitable(res) else res
+            if isinstance(existing_indexes, dict):
+                drop_fn = getattr(db.foods, "drop_index", None)
+                if "idx_foods_barcode_sparse" in existing_indexes and callable(drop_fn):
+                    logger.info("Migrating legacy 'idx_foods_barcode_sparse' index to partial unique index...")
+                    drop_res = drop_fn("idx_foods_barcode_sparse")
+                    if inspect.isawaitable(drop_res):
+                        await drop_res
+                elif "idx_foods_barcode_unique" in existing_indexes and callable(drop_fn):
+                    info = existing_indexes["idx_foods_barcode_unique"]
+                    if isinstance(info, dict) and "partialFilterExpression" not in info:
+                        logger.info("Recreating 'idx_foods_barcode_unique' with partialFilterExpression...")
+                        drop_res = drop_fn("idx_foods_barcode_unique")
+                        if inspect.isawaitable(drop_res):
+                            await drop_res
+    except Exception as exc:
+        logger.warning("Could not perform index migration check on foods: %s", exc)
+
     await db.foods.create_indexes([
         IndexModel([("name", TEXT), ("brand", TEXT), ("tags", TEXT)], name="idx_foods_text_search"),
         IndexModel([("is_system", ASCENDING), ("created_by", ASCENDING)], name="idx_foods_system_created"),
         IndexModel([("provenance.source_type", ASCENDING), ("created_by", ASCENDING)], name="idx_foods_provenance_scoping"),
         IndexModel([("created_by", ASCENDING), ("name", ASCENDING)], name="idx_foods_user_foods"),
-        IndexModel([("barcode", ASCENDING)], unique=True, sparse=True, name="idx_foods_barcode_sparse"),
+        IndexModel(
+            [("barcode", ASCENDING)],
+            unique=True,
+            partialFilterExpression={"barcode": {"$type": "string"}},
+            name="idx_foods_barcode_unique",
+        ),
     ])
 
     # 4. meal_logs indexes

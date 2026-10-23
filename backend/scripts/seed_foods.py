@@ -8,7 +8,7 @@ backend_dir = Path(__file__).resolve().parent.parent
 if str(backend_dir) not in sys.path:
     sys.path.insert(0, str(backend_dir))
 
-from app.core.database import close_mongo_connection, connect_to_mongo, db_manager
+from app.core.database import close_mongo_connection, connect_to_mongo, db_manager, ensure_indexes
 from app.services.seed_service import seed_starter_foods
 
 logging.basicConfig(
@@ -29,7 +29,10 @@ async def main():
             print("ERROR: Failed to connect to MongoDB.")
             sys.exit(1)
 
-        print(f"Connected to database '{db_manager.db.name}'. Seeding starter foods...")
+        print(f"Connected to database '{db_manager.db.name}'. Ensuring indexes and migrations...")
+        await ensure_indexes(db_manager.db)
+
+        print("Seeding starter foods...")
         summary = await seed_starter_foods(db=db_manager.db)
 
         print("\nSeeding Results:")
