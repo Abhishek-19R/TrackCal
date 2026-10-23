@@ -4,11 +4,11 @@ import type { RequestOptions } from '../types/api.ts'
 const STORAGE_KEY_USER_ID = 'nutritrack_dev_user_id'
 
 export const DEFAULT_DEV_USER_ID =
-  (import.meta.env.VITE_DEV_USER_ID as string) || '65f000000000000000000001'
+  (import.meta.env?.VITE_DEV_USER_ID as string) || '65f000000000000000000001'
 
 export const getApiBaseUrl = (): string => {
   const url =
-    (import.meta.env.VITE_API_BASE_URL as string) || 'http://localhost:8000/api/v1'
+    (import.meta.env?.VITE_API_BASE_URL as string) || 'http://localhost:8000/api/v1'
   return url.replace(/\/+$/, '')
 }
 

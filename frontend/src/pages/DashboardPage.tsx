@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import {
   Activity,
   ArrowRight,
+  Camera,
   Flame,
   Plus,
   Scale,
@@ -39,9 +40,14 @@ export const DashboardPage: React.FC = () => {
   const [dailyData, setDailyData] = useState<DailyMealsSummaryResponse | null>(null)
   const [latestWeight, setLatestWeight] = useState<WeightLogResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [logFoodModal, setLogFoodModal] = useState<{ open: boolean; mealType: MealType }>({
+  const [logFoodModal, setLogFoodModal] = useState<{
+    open: boolean
+    mealType: MealType
+    mode: 'search' | 'scan'
+  }>({
     open: false,
     mealType: 'breakfast',
+    mode: 'search',
   })
   const [logWeightModalOpen, setLogWeightModalOpen] = useState(false)
 
@@ -129,15 +135,24 @@ export const DashboardPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-center shrink-0">
           <Button
             variant="secondary"
             size="md"
             className="bg-white text-emerald-900 hover:bg-emerald-50 shadow-sm"
-            onClick={() => setLogFoodModal({ open: true, mealType: getDefaultMealType() })}
+            onClick={() => setLogFoodModal({ open: true, mealType: getDefaultMealType(), mode: 'search' })}
             leftIcon={<Plus className="w-4 h-4 text-emerald-600" />}
           >
             Log Meal
+          </Button>
+          <Button
+            variant="outline"
+            size="md"
+            className="border-emerald-300/60 bg-emerald-700/40 text-white hover:bg-emerald-700/70"
+            onClick={() => setLogFoodModal({ open: true, mealType: getDefaultMealType(), mode: 'scan' })}
+            leftIcon={<Camera className="w-4 h-4 text-emerald-200" />}
+          >
+            Scan Photo ✨
           </Button>
           <Button
             variant="outline"
@@ -406,14 +421,27 @@ export const DashboardPage: React.FC = () => {
                             </span>
                           </div>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setLogFoodModal({ open: true, mealType: cat.key })}
-                          leftIcon={<Plus className="w-3.5 h-3.5" />}
-                        >
-                          Add
-                        </Button>
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setLogFoodModal({ open: true, mealType: cat.key, mode: 'scan' })}
+                            className="text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 px-2 h-8 text-xs"
+                            title={`Scan photo for ${cat.label.toLowerCase()}`}
+                            leftIcon={<Camera className="w-3.5 h-3.5 text-emerald-600" />}
+                          >
+                            Scan
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setLogFoodModal({ open: true, mealType: cat.key, mode: 'search' })}
+                            className="h-8 text-xs"
+                            leftIcon={<Plus className="w-3.5 h-3.5" />}
+                          >
+                            Add
+                          </Button>
+                        </div>
                       </CardHeader>
 
                       <CardContent className="pt-0">
@@ -479,6 +507,7 @@ export const DashboardPage: React.FC = () => {
         onClose={() => setLogFoodModal((prev) => ({ ...prev, open: false }))}
         initialMealType={logFoodModal.mealType}
         initialDate={todayStr}
+        initialMode={logFoodModal.mode}
         onSuccess={() => void fetchData()}
       />
 

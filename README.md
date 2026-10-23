@@ -2,8 +2,9 @@
 
 > A polished, modern, open-source nutrition and food tracking web application designed for self-hosting and local ownership.
 
-[![Phase](https://img.shields.io/badge/Phase_3B-Completed-success?style=flat-square)](file:///c:/Projects/Trackal/ARCHITECTURE.md)
-[![Tests](https://img.shields.io/badge/Tests-86_Passing-brightgreen?style=flat-square)](#)
+[![Phase](https://img.shields.io/badge/Photo_AI_Vision-Integrated-success?style=flat-square)](file:///c:/Projects/Trackal/ARCHITECTURE.md)
+[![Backend Tests](https://img.shields.io/badge/Backend_Tests-92_Passing-brightgreen?style=flat-square)](#)
+[![Frontend Tests](https://img.shields.io/badge/Frontend_Tests-7_Passing-brightgreen?style=flat-square)](#)
 [![Frontend](https://img.shields.io/badge/Frontend-Vite_+_React_19_+_Tailwind_v4-10b981?style=flat-square)](#)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](#)
 [![Python](https://img.shields.io/badge/Backend-FastAPI_+_PyMongo_Async_+_Pydantic-3776AB?style=flat-square)](#)
@@ -17,7 +18,7 @@ NutriTrack empowers individuals to track their daily calories, macronutrients (p
 
 ### Core Product Principles
 * 🌿 **AI-Independent Core**: Every single feature in NutriTrack (calorie calculation, food search, meal logging, weight analysis) works deterministically without requiring an AI model or internet connectivity.
-* 🤖 **Optional AI Enhancement (Client-Side Key Only)**: Optional natural language food parsing can be enabled by the user with their own private API keys (OpenAI / Gemini / Anthropic). Keys are stored strictly on the user's local device, never persisted in MongoDB or on the server.
+* 🤖 **Optional AI Vision (Client-Side Key Only / BYOK)**: Photo-based meal scanning with Google Gemini Vision. Keys are stored strictly on the user's local device (`localStorage`), never persisted in MongoDB or on the server.
 * 🔒 **Data Privacy & Ownership**: Your health and body metrics remain yours. Strict user-scoped isolation for all personal logs. Run it locally or host it on your own server. Full JSON export/import supported.
 * 🏠 **Installer's MongoDB Ownership**: NutriTrack connects strictly to the installer's own MongoDB deployment (local or private Atlas). The repo never contains credentials, and no centralized maintainer cluster is required.
 * 🍎 **Hybrid Food-Data Model**: Rather than an unmaintainable worldwide monolithic database, NutriTrack uses a 4-tier model: Starter seed foods, public external source queries with attribution, optional local caching, and user-owned custom foods.
@@ -27,9 +28,9 @@ NutriTrack empowers individuals to track their daily calories, macronutrients (p
 
 ## 📊 Current Project Status & Progress Tracker
 
-> **Current Phase**: **Phase 3B (Personalized Nutrition Onboarding) — COMPLETED**  
-> **Backend Baseline**: **86 automated tests passing** (pytest + in-memory AsyncMockDatabase)  
-> **Frontend Baseline**: **TypeScript strict build passing (`tsc -b && vite build`) & 0 lint warnings (`oxlint`)**  
+> **Current Phase**: **Photo-Based Food Detection (AI Vision) & Core Polish — COMPLETED**  
+> **Backend Baseline**: **92 automated tests passing** (pytest + in-memory AsyncMockDatabase)  
+> **Frontend Baseline**: **7 automated unit tests passing (`npm test`), TypeScript build passing (`tsc -b && vite build`) & 0 lint warnings (`oxlint`)**  
 > **Stitch MCP Design System**: **"NutriTrack Emerald Calm" verified & integrated** (`#10b981`, Plus Jakarta Sans, Inter)  
 > Next Up: **Phase 4 (Core User Workflows & Recharts Visualizations)**
 
@@ -152,7 +153,29 @@ npm run build
 
 # Run fast linter (oxlint)
 npm run lint
+
+# Run frontend unit tests (AI Vision validator, weights, error mapping)
+npm test
 ```
+
+---
+
+## 📸 Photo-Based Food Detection (AI Vision)
+
+NutriTrack includes photo-based meal detection with an editable review workflow:
+1. **Camera or Upload**: Capture or upload any plate image from your mobile device or desktop.
+2. **Optional Context**: Add optional context (e.g., *"contains almond butter and oat milk"*) to assist the vision model with non-obvious ingredients.
+3. **Bring-Your-Own-Key (BYOK) Privacy**:
+   - Uses the **Google Gemini Vision API** (free tier: 15 RPM / 1,500 RPD).
+   - Enter your free Gemini API key in **Settings** or inline within the scanner.
+   - The key is saved exclusively in your browser's `localStorage` (`nutritrack_client_gemini_key`).
+   - The key is **never sent to the NutriTrack backend, never stored in MongoDB, and never logged**.
+4. **Interactive Review & Verification**:
+   - AI outputs are untrusted and strictly validated/sanitized (weights clamped to 5g–3000g).
+   - Detected food names are matched against the local catalog (`foodApi.search`) to use verified per-100g nutrition values whenever possible.
+   - Adjust portions with +/- 25g steppers, rename items, or add/remove items before confirming.
+5. **Instant Batch Logging**: Confirmed foods are logged directly via the existing meal API into MongoDB with full daily progress updates.
+6. **Zero-Lockin Fallback**: If quota is exhausted (HTTP 429) or no key is configured, a 1-click fallback opens the standard manual catalog search.
 
 ---
 

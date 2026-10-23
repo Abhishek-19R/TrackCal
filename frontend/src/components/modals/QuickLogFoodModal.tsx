@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { Check, Flame, Loader2, Search, Sparkles } from 'lucide-react'
+import { Camera, Check, Flame, Loader2, Search, Sparkles } from 'lucide-react'
 import { Modal } from '../ui/Modal.tsx'
 import { Button } from '../ui/Button.tsx'
 import { Input } from '../ui/Input.tsx'
 import { Select } from '../ui/Select.tsx'
+import { PhotoFoodScanner } from './PhotoFoodScanner.tsx'
 import { foodApi } from '../../api/foods.ts'
 import { mealApi } from '../../api/meals.ts'
 import { useApp } from '../../context/AppContext.tsx'
@@ -17,7 +18,12 @@ export interface QuickLogFoodModalProps {
   onSuccess?: () => void
   initialMealType?: MealType
   initialDate?: string
+  initialMode?: 'search' | 'scan'
 }
+
+const MIN_SERVINGS = 0.25
+const MAX_SERVINGS = 20
+const SERVINGS_STEP = 0.25
 
 export const QuickLogFoodModal: React.FC<QuickLogFoodModalProps> = ({
   isOpen,
@@ -25,6 +31,7 @@ export const QuickLogFoodModal: React.FC<QuickLogFoodModalProps> = ({
   onSuccess,
   initialMealType,
   initialDate,
+  initialMode,
 }) => {
   const { addToast } = useApp()
   const todayStr = getTodayDateString()
@@ -32,6 +39,7 @@ export const QuickLogFoodModal: React.FC<QuickLogFoodModalProps> = ({
   // Always compute effective target date and category from props or defaults
   const targetDate = initialDate || todayStr
   const [mealType, setMealType] = useState<MealType>(initialMealType || getDefaultMealType())
+  const [logMode, setLogMode] = useState<'search' | 'scan'>(initialMode || 'search')
 
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<FoodResponse[]>([])
@@ -40,7 +48,8 @@ export const QuickLogFoodModal: React.FC<QuickLogFoodModalProps> = ({
 
   const [selectedFood, setSelectedFood] = useState<FoodResponse | null>(null)
   const [selectedServing, setSelectedServing] = useState<ServingSize | null>(null)
-  const [servingsMultiplier, setServingsMultiplier] = useState<number>(1)
+  const [servingsInput, setServingsInput] = useState<string>('1')
+  const [servingsError, setServingsError] = useState<string | null>(null)
   const [notes, setNotes] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -49,15 +58,17 @@ export const QuickLogFoodModal: React.FC<QuickLogFoodModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       setMealType(initialMealType || getDefaultMealType())
+      setLogMode(initialMode || 'search')
       setSelectedFood(null)
       setSelectedServing(null)
-      setServingsMultiplier(1)
+      setServingsInput('1')
+      setServingsError(null)
       setSearchQuery('')
       setNotes('')
       setError(null)
       setSearchError(null)
     }
-  }, [isOpen, initialMealType, initialDate])
+  }, [isOpen, initialMealType, initialDate, initialMode])
 
   // Food Search debounce (immediate on open, 250ms when typing)
   useEffect(() => {
@@ -98,7 +109,36 @@ export const QuickLogFoodModal: React.FC<QuickLogFoodModalProps> = ({
         weight_g: 100,
       }
     setSelectedServing(defaultServing)
-    setServingsMultiplier(1)
+    setServingsInput('1')
+    setServingsError(null)
+  }
+
+  const handleServingsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value
+    setServingsInput(val)
+    if (servingsError) {
+      setServingsError(null)
+    }
+  }
+
+  const handleDecreaseServings = () => {
+    const current = parseFloat(servingsInput)
+    const base = isNaN(current) ? 1 : current
+    const next = Math.max(MIN_SERVINGS, Math.round((base - SERVINGS_STEP) * 100) / 100)
+    setServingsInput(String(next))
+    if (servingsError) {
+      setServingsError(null)
+    }
+  }
+
+  const handleIncreaseServings = () => {
+    const current = parseFloat(servingsInput)
+    const base = isNaN(current) ? 1 : current
+    const next = Math.min(MAX_SERVINGS, Math.round((base + SERVINGS_STEP) * 100) / 100)
+    setServingsInput(String(next))
+    if (servingsError) {
+      setServingsError(null)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -108,8 +148,15 @@ export const QuickLogFoodModal: React.FC<QuickLogFoodModalProps> = ({
       return
     }
 
+    const numericServings = parseFloat(servingsInput)
+    if (isNaN(numericServings) || numericServings < MIN_SERVINGS || numericServings > MAX_SERVINGS) {
+      setServingsError(`Please enter a valid serving quantity between ${MIN_SERVINGS} and ${MAX_SERVINGS}.`)
+      return
+    }
+
     setIsLoading(true)
     setError(null)
+    setServingsError(null)
     const effectiveMealType = initialMealType || mealType
 
     try {
@@ -122,7 +169,7 @@ export const QuickLogFoodModal: React.FC<QuickLogFoodModalProps> = ({
           description: selectedServing.description,
           weight_g: selectedServing.weight_g,
         },
-        number_of_servings: servingsMultiplier,
+        number_of_servings: numericServings,
         notes: notes.trim() || undefined,
       })
       const mealMeta = MEAL_TYPE_META[effectiveMealType]
@@ -142,36 +189,39 @@ export const QuickLogFoodModal: React.FC<QuickLogFoodModalProps> = ({
   }
 
   // Calculate estimated nutrients for preview based on selected food and portion
-  const effectiveMealMeta = MEAL_TYPE_META[initialMealType || mealType]
-  const selectedWeightG = Math.round((selectedServing?.weight_g || 100) * servingsMultiplier)
+  const effectiveMealType = initialMealType || mealType
+  const effectiveMealMeta = MEAL_TYPE_META[effectiveMealType]
+  const parsedServings = parseFloat(servingsInput)
+  const validServings = !isNaN(parsedServings) && parsedServings > 0 ? parsedServings : 0
+  const selectedWeightG = Math.round((selectedServing?.weight_g || 100) * validServings)
   const estimatedCalories =
-    selectedFood && selectedServing
+    selectedFood && selectedServing && validServings > 0
       ? Math.round(
           ((selectedFood.nutrients_per_100g.calories * selectedServing.weight_g) / 100) *
-            servingsMultiplier
+            validServings
         )
       : 0
   const estimatedProtein =
-    selectedFood && selectedServing
+    selectedFood && selectedServing && validServings > 0
       ? Math.round(
           (((selectedFood.nutrients_per_100g.protein_g * selectedServing.weight_g) / 100) *
-            servingsMultiplier) *
+            validServings) *
             10
         ) / 10
       : 0
   const estimatedCarbs =
-    selectedFood && selectedServing
+    selectedFood && selectedServing && validServings > 0
       ? Math.round(
           (((selectedFood.nutrients_per_100g.carbs_g * selectedServing.weight_g) / 100) *
-            servingsMultiplier) *
+            validServings) *
             10
         ) / 10
       : 0
   const estimatedFat =
-    selectedFood && selectedServing
+    selectedFood && selectedServing && validServings > 0
       ? Math.round(
           (((selectedFood.nutrients_per_100g.fat_g * selectedServing.weight_g) / 100) *
-            servingsMultiplier) *
+            validServings) *
             10
         ) / 10
       : 0
@@ -181,10 +231,10 @@ export const QuickLogFoodModal: React.FC<QuickLogFoodModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       title="Log Food to Meal"
-      description="Record nutrition into your daily meal log with instant macro calculations."
+      description="Record nutrition into your daily meal log with instant macro calculations or photo scan."
       maxWidth="lg"
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-4">
         {error && (
           <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700">
             {error}
@@ -221,6 +271,51 @@ export const QuickLogFoodModal: React.FC<QuickLogFoodModalProps> = ({
             />
           </div>
         )}
+
+        {/* Mode Switcher Tabs: Search Catalog vs AI Vision Photo Scan */}
+        <div className="flex items-center p-1 bg-slate-100 rounded-xl">
+          <button
+            type="button"
+            onClick={() => setLogMode('search')}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+              logMode === 'search'
+                ? 'bg-white text-slate-900 shadow-2xs font-bold'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Search className="w-3.5 h-3.5" />
+            <span>Search Catalog</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setLogMode('scan')}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+              logMode === 'scan'
+                ? 'bg-white text-emerald-800 shadow-2xs font-bold'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Camera className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Scan Food Photo</span>
+            <span className="text-[10px] px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold uppercase tracking-wider inline-flex items-center gap-0.5">
+              <Sparkles className="w-2.5 h-2.5" /> AI
+            </span>
+          </button>
+        </div>
+
+        {logMode === 'scan' ? (
+          <PhotoFoodScanner
+            targetDate={targetDate}
+            mealType={effectiveMealType}
+            mealLabel={effectiveMealMeta.label}
+            onSuccess={() => {
+              if (onSuccess) onSuccess()
+            }}
+            onClose={onClose}
+            onSwitchToSearch={() => setLogMode('search')}
+          />
+        ) : (
+          <form onSubmit={handleSubmit} noValidate className="space-y-4">
 
         {/* Food Search & Selection */}
         {!selectedFood ? (
@@ -359,37 +454,42 @@ export const QuickLogFoodModal: React.FC<QuickLogFoodModalProps> = ({
                 <div className="flex items-center gap-1.5">
                   <button
                     type="button"
-                    onClick={() =>
-                      setServingsMultiplier((prev) =>
-                        Math.max(0.25, Math.round((prev - 0.25) * 100) / 100)
-                      )
-                    }
-                    className="w-9 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-base flex items-center justify-center transition-colors cursor-pointer shadow-2xs"
+                    onClick={handleDecreaseServings}
+                    disabled={!isNaN(parsedServings) && parsedServings <= MIN_SERVINGS}
+                    className="w-9 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-base flex items-center justify-center transition-colors cursor-pointer shadow-2xs disabled:opacity-40 disabled:cursor-not-allowed"
                     aria-label="Decrease servings"
                   >
                     -
                   </button>
                   <input
                     type="number"
-                    step="0.25"
-                    min="0.1"
-                    max="50"
-                    className="flex-1 text-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-2xs"
-                    value={servingsMultiplier}
-                    onChange={(e) => setServingsMultiplier(parseFloat(e.target.value) || 1)}
-                    required
+                    step="any"
+                    min={MIN_SERVINGS}
+                    max={MAX_SERVINGS}
+                    className={`flex-1 text-center rounded-xl border bg-white px-3 py-2 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 shadow-2xs transition-colors ${
+                      servingsError
+                        ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/20'
+                        : 'border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20'
+                    }`}
+                    value={servingsInput}
+                    onChange={handleServingsChange}
+                    aria-label="Number of servings"
                   />
                   <button
                     type="button"
-                    onClick={() =>
-                      setServingsMultiplier((prev) => Math.round((prev + 0.25) * 100) / 100)
-                    }
-                    className="w-9 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-base flex items-center justify-center transition-colors cursor-pointer shadow-2xs"
+                    onClick={handleIncreaseServings}
+                    disabled={!isNaN(parsedServings) && parsedServings >= MAX_SERVINGS}
+                    className="w-9 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-base flex items-center justify-center transition-colors cursor-pointer shadow-2xs disabled:opacity-40 disabled:cursor-not-allowed"
                     aria-label="Increase servings"
                   >
                     +
                   </button>
                 </div>
+                {servingsError && (
+                  <p className="mt-1 text-[11px] font-medium text-rose-600">
+                    {servingsError}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -445,6 +545,8 @@ export const QuickLogFoodModal: React.FC<QuickLogFoodModalProps> = ({
           </Button>
         </div>
       </form>
-    </Modal>
+    )}
+  </div>
+</Modal>
   )
 }

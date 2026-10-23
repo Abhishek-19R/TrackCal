@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import {
   Calendar as CalendarIcon,
+  Camera,
   ChevronLeft,
   ChevronRight,
   Flame,
@@ -24,9 +25,10 @@ export const FoodLogPage: React.FC = () => {
   const [currentDate, setCurrentDate] = useState<string>(todayStr)
   const [dailyData, setDailyData] = useState<DailyMealsSummaryResponse | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [logModal, setLogModal] = useState<{ open: boolean; mealType: MealType }>({
+  const [logModal, setLogModal] = useState<{ open: boolean; mealType: MealType; mode?: 'search' | 'scan' }>({
     open: false,
     mealType: 'breakfast',
+    mode: 'search',
   })
 
   const fetchDayMeals = useCallback(async (date: string) => {
@@ -128,16 +130,28 @@ export const FoodLogPage: React.FC = () => {
           )}
         </div>
 
-        {/* Daily Summary Pill */}
-        <div className="flex items-center gap-4 text-xs">
-          <div className="flex items-center gap-1.5 font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-100">
-            <Flame className="w-4 h-4 text-emerald-600" />
-            <span>{Math.round(totals.calories)} kcal Total</span>
-          </div>
-          <div className="hidden md:flex items-center gap-3 text-slate-600 font-medium">
-            <span>P: <strong className="text-slate-900">{Math.round(totals.protein_g)}g</strong></span>
-            <span>C: <strong className="text-slate-900">{Math.round(totals.carbs_g)}g</strong></span>
-            <span>F: <strong className="text-slate-900">{Math.round(totals.fat_g)}g</strong></span>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setLogModal({ open: true, mealType: 'lunch', mode: 'scan' })}
+            leftIcon={<Camera className="w-4 h-4 text-emerald-600" />}
+            className="hidden sm:inline-flex"
+          >
+            Scan Photo
+          </Button>
+
+          {/* Daily Summary Pill */}
+          <div className="flex items-center gap-4 text-xs">
+            <div className="flex items-center gap-1.5 font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-100">
+              <Flame className="w-4 h-4 text-emerald-600" />
+              <span>{Math.round(totals.calories)} kcal Total</span>
+            </div>
+            <div className="hidden md:flex items-center gap-3 text-slate-600 font-medium">
+              <span>P: <strong className="text-slate-900">{Math.round(totals.protein_g)}g</strong></span>
+              <span>C: <strong className="text-slate-900">{Math.round(totals.carbs_g)}g</strong></span>
+              <span>F: <strong className="text-slate-900">{Math.round(totals.fat_g)}g</strong></span>
+            </div>
           </div>
         </div>
       </div>
@@ -171,14 +185,26 @@ export const FoodLogPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={() => setLogModal({ open: true, mealType: bucket.key })}
-                    leftIcon={<Plus className="w-3.5 h-3.5" />}
-                  >
-                    Add Food
-                  </Button>
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setLogModal({ open: true, mealType: bucket.key, mode: 'scan' })}
+                      leftIcon={<Camera className="w-3.5 h-3.5 text-emerald-600" />}
+                      className="text-xs py-1"
+                    >
+                      Scan
+                    </Button>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => setLogModal({ open: true, mealType: bucket.key, mode: 'search' })}
+                      leftIcon={<Plus className="w-3.5 h-3.5" />}
+                      className="text-xs py-1"
+                    >
+                      Add Food
+                    </Button>
+                  </div>
                 </CardHeader>
 
                 <CardContent className="p-0">
@@ -246,6 +272,7 @@ export const FoodLogPage: React.FC = () => {
         onClose={() => setLogModal((prev) => ({ ...prev, open: false }))}
         initialMealType={logModal.mealType}
         initialDate={currentDate}
+        initialMode={logModal.mode}
         onSuccess={() => void fetchDayMeals(currentDate)}
       />
     </div>

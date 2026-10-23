@@ -691,3 +691,56 @@ Calculated Targets (is_custom_override: false, cleared)
 * Sex: `"male"` or `"female"` (equation selection, not identity)
 * Activity level: one of 5 standard levels
 * Goal: `"maintain"`, `"gain"`, or `"lose"`
+
+---
+
+## 11. Photo-Based Food Detection (AI Vision)
+
+### 11.1 Architecture & Core Principles
+Photo-based food detection is an optional, assistive capability designed to accelerate food logging while adhering strictly to NutriTrack's core privacy and deterministic principles:
+1. **Zero Server AI Key Storage (BYOK)**: User API keys (Google Gemini) reside exclusively in the client's `localStorage` (`nutritrack_client_gemini_key`). They are never transmitted to the NutriTrack FastAPI backend, never written to MongoDB, and never stored in server logs or repositories.
+2. **Ephemeral Image Handling**: Images captured or selected are processed client-side as base64 data and sent directly from the browser to the AI vision endpoint. NutriTrack has no image storage infrastructure; image bytes are never saved on the server or MongoDB.
+3. **AI Output Is Untrusted & Strictly Sanitized**: AI responses are stripped of markdown fences, strictly validated against expected schemas, and clamped to safe physical limits (e.g., portion weights 5g–3000g).
+4. **Deterministic Catalog Grounding**: Whenever possible, detected item names are matched against the local food catalog (`foodApi.search`). If a match exists, authoritative per-100g database values are used for deterministic calculations rather than unverified AI guesses. Users can clearly see which items are verified vs. AI estimated.
+5. **Mandatory Human-in-the-Loop Review**: Detection results are always presented in an editable review screen before any database write. The user can adjust portion sizes, edit names, remove items, or add missing foods.
+6. **Graceful Fallbacks**: If an API key is missing, network is unavailable, or free-tier quota (HTTP 429) is reached, the UI provides clear, actionable guidance and an immediate 1-click fallback to the standard catalog search.
+7. **Offline Catalog Enrichment**: When the user confirms an uncataloged food item, it is automatically saved to the user's custom catalog (`foodApi.create`) so that subsequent logs of that food can be retrieved offline without calling AI vision.
+
+### 11.2 Flow Diagram
+```
+[User Camera / Photo Upload]
+            │
+            ▼
+[Client Base64 Conversion & Preview] (Optional text context)
+            │
+            ▼
+[Client Browser direct call to Gemini Vision API]
+   (gemini-2.5-flash -> fallback to gemini-1.5-flash)
+            │
+            ▼
+[Validator & Sanitizer] (Strip fences, schema check, clamp 5-3000g)
+            │
+            ▼
+[Local Catalog Matcher] (foodApi.search -> link verified nutrients)
+            │
+            ▼
+[Interactive Review Modal]
+   - Portion steppers (+/- 25g increments)
+   - Verified catalog badge vs. AI estimate badge
+   - Total plate macro summary
+   - Add/Remove items
+            │
+            ▼
+[Confirm & Batch Log Meal]
+   - Ensure MongoDB food_id for uncataloged items
+   - mealApi.logMeal({ items: [...] }) -> MongoDB
+            │
+            ▼
+[Instant Dashboard & Meal Log Refresh]
+```
+
+### 11.3 Vision Provider Specifications
+* **Default Provider**: Google Gemini Vision API (Free tier: 15 RPM / 1,500 RPD)
+* **Candidate Models**: `gemini-2.5-flash` (primary, fast & multimodal) with automatic fallback to `gemini-1.5-flash`
+* **Direct Browser Fetch**: Requests originate directly from the user's browser, preventing backend bottlenecks and third-party credential leakage.
+
